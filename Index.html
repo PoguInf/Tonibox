@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die Musikbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap">
+<style>
+  /* Layout: Box links, Arbeitsauftrag rechts, Protokoll über volle Breite darunter */
+  :root{
+    --bg:#eef4f7; --card:#ffffff; --ink:#1f2d3a; --muted:#5a6b7a; --line:#d6e2e9;
+    --accent:#1f6f8b; --accent-ink:#ffffff; --accent-soft:#e1eff5;
+    --auto:#9a5b00; --table:#e6d6bb; --table-edge:#cdb995;
+    --box:#d0534a; --box-side:#a8403a; --box-top:#e3726a; --btn:#cfd3d6; --btn-edge:#8f969c;
+    --led-off:#5a3a37; --led-on:#7fe08c;
+    --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+    --body:"Nunito","Segoe UI",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121b22; --card:#1b2731; --ink:#e6eef3; --muted:#9db0bf; --line:#2c3b47;
+      --accent:#5fb8d6; --accent-ink:#0d1a21; --accent-soft:#1f3442;
+      --auto:#f0b45a; --table:#3a3226; --table-edge:#4d4231; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121b22; --card:#1b2731; --ink:#e6eef3; --muted:#9db0bf; --line:#2c3b47;
+    --accent:#5fb8d6; --accent-ink:#0d1a21; --accent-soft:#1f3442;
+    --auto:#f0b45a; --table:#3a3226; --table-edge:#4d4231; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+    padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+  .wrap{max-width:1100px;margin:0 auto;padding-block:20px 32px;display:grid;gap:18px;grid-template-columns:1fr 1fr}
+  header{grid-column:1 / -1;text-align:center}
+  h1,h2{font-family:var(--display);font-weight:600;text-wrap:balance}
+  h1{margin:0;font-size:2.2rem;color:var(--accent)}
+  header p{margin:2px 0 0;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}
+  .card h2{margin:0 0 12px;font-size:1.35rem}
+  .full{grid-column:1 / -1}
+  @media (max-width:820px){.wrap{grid-template-columns:1fr}}
+
+  /* Box */
+  .stage{position:relative;width:100%;max-width:460px;margin:0 auto}
+  .stage svg{width:100%;height:auto;display:block}
+  .clickable{cursor:pointer}
+  .clickable:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  #duck{transition:transform .7s cubic-bezier(.5,1.6,.5,1)}
+  #duck.beside{transform:translate(70px,292px)}
+  #duck.onbox{transform:translate(262px,131px)}
+  .tri{transition:transform .1s}
+  .tri:active{transform:translateY(2px)}
+  #led{transition:fill .4s}
+  .led-off{fill:var(--led-off)}
+  .led-on{fill:var(--led-on)}
+  .led-play{fill:var(--led-on);animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .note{position:absolute;color:var(--accent);pointer-events:none;animation:float 2.2s ease-out forwards}
+  @keyframes float{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(var(--dx),-110px) rotate(20deg)}}
+  .vol{position:absolute;right:4%;top:4%;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:4px 10px;font-weight:700;opacity:0;transition:opacity .3s;letter-spacing:.1em}
+  .vol.show{opacity:1}
+  @media (prefers-reduced-motion: reduce){#duck,.tri{transition:none}.led-play{animation:none}.note{display:none}}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+  button{font:inherit;font-weight:700;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);
+    padding:9px 15px;border-radius:12px;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+  button.ghost{background:transparent;color:var(--accent)}
+  button.small{padding:5px 12px;font-size:.9rem}
+  button.danger{border-color:var(--auto);color:var(--auto)}
+  .hint{font-size:.9rem;color:var(--muted);text-align:center;margin:10px 0 0}
+
+  /* Arbeitsauftrag */
+  .intro{margin:0 0 12px}
+  ol.tasks{padding-left:22px;margin:0;display:grid;gap:8px}
+  .words{display:grid;gap:8px;margin-top:16px}
+  .word{background:var(--accent-soft);border-radius:12px;padding:8px 12px}
+  .word b{color:var(--accent)}
+
+  /* Protokoll */
+  .proto-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+  .proto-head h2{margin:0}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:560px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:.85rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  td.nr,td.time{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.nr{width:44px} td.time{width:90px}
+  td.input{font-weight:700;white-space:nowrap}
+  tr.auto td.input{color:var(--auto)}
+  td input{width:100%;font:inherit;color:var(--ink);background:var(--bg);padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+  .empty{color:var(--muted);text-align:center;padding:18px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Die Musikbox</h1>
+    <p>Ein Automat aus dem Alltag: Probiert aus und findet heraus, wie er funktioniert!</p>
+  </header>
+
+  <section class="card">
+    <h2>Musikbox mit Figur</h2>
+    <div class="stage" id="stage">
+      <svg viewBox="0 0 400 320" role="img" aria-label="Musikbox mit zwei Dreiecken oben und einer Entenfigur">
+        <rect x="0" y="292" width="400" height="28" fill="var(--table)"/>
+        <rect x="0" y="292" width="400" height="4" fill="var(--table-edge)"/>
+        <ellipse cx="262" cy="295" rx="105" ry="7" fill="rgba(0,0,0,.15)"/>
+        <!-- Box -->
+        <polygon points="335,150 362,118 362,262 335,292" fill="var(--box-side)"/>
+        <rect x="165" y="150" width="170" height="142" rx="10" fill="var(--box)"/>
+        <polygon points="165,150 335,150 362,118 192,118" fill="var(--box-top)"/>
+        <rect id="led" class="led-off" x="175" y="156" width="150" height="7" rx="3.5"/>
+        <g fill="var(--box-side)">
+          <circle cx="215" cy="230" r="4"/><circle cx="235" cy="230" r="4"/><circle cx="255" cy="230" r="4"/><circle cx="275" cy="230" r="4"/>
+          <circle cx="225" cy="248" r="4"/><circle cx="245" cy="248" r="4"/><circle cx="265" cy="248" r="4"/>
+          <circle cx="215" cy="266" r="4"/><circle cx="235" cy="266" r="4"/><circle cx="255" cy="266" r="4"/><circle cx="275" cy="266" r="4"/>
+        </g>
+        <!-- zwei Dreiecke oben -->
+        <g id="triLeft" class="clickable tri" role="button" tabindex="0" aria-label="Linkes Dreieck drücken">
+          <polygon points="183,145 225,145 214,123" fill="var(--btn)" stroke="var(--btn-edge)" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+        <g id="triRight" class="clickable tri" role="button" tabindex="0" aria-label="Rechtes Dreieck drücken">
+          <polygon points="300,145 342,145 331,123" fill="var(--btn)" stroke="var(--btn-edge)" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+        <!-- Ente -->
+        <g id="duck" class="beside clickable" role="button" tabindex="0" aria-label="Ente aufstellen oder herunternehmen">
+          <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
+          <path d="M-12 -10 l-4 -8 M12 -10 l4 -8" stroke="#e8892b" stroke-width="5" stroke-linecap="round"/>
+          <ellipse cx="0" cy="-36" rx="32" ry="22" fill="#ffd23f"/>
+          <path d="M-30 -42 q-14 -10 -6 -22 q6 10 14 12z" fill="#ffd23f"/>
+          <ellipse cx="-4" cy="-36" rx="14" ry="9" fill="#f2bd1d"/>
+          <circle cx="17" cy="-66" r="17" fill="#ffd23f"/>
+          <path d="M32 -66 l16 3 l-16 6z" fill="#e8892b"/>
+          <circle cx="22" cy="-70" r="3" fill="#24303b"/>
+        </g>
+      </svg>
+      <div class="vol" id="vol" aria-live="polite"></div>
+    </div>
+
+    <div class="controls">
+      <button id="btnLeft" type="button">Linkes Dreieck</button>
+      <button id="btnRight" type="button">Rechtes Dreieck</button>
+      <button id="btnDuck" type="button">Ente auf die Box stellen</button>
+      <button id="btnWait" type="button" class="ghost">1 Minute nichts tun</button>
+    </div>
+    <p class="hint">Ihr könnt auch direkt auf die Dreiecke oder die Ente klicken. Ton einschalten!</p>
+  </section>
+
+  <section class="card">
+    <h2>Euer Arbeitsauftrag</h2>
+    <p class="intro">Tina hat eine neue Musikbox. Stellt man eine Figur wie die Ente auf die Box, kann man Lieder hören. Oben auf der Box sind zwei Dreiecke. Aber wie funktioniert die Box genau?</p>
+    <ol class="tasks">
+      <li><b>Probiert aus:</b> Drückt die beiden Dreiecke, stellt die Ente auf die Box und nehmt sie wieder herunter, in verschiedenen Reihenfolgen.</li>
+      <li><b>Beobachtet genau:</b> Was macht die Box nach jeder Eingabe? Leuchtet das Licht? Spielt Musik? Wird es lauter oder leiser? Tragt es unten ins Protokoll ein.</li>
+      <li><b>Welches Dreieck schaltet die Box ein?</b> Was machen die Dreiecke, wenn die Box schon an ist?</li>
+      <li><b>Was passiert, wenn niemand die Box bedient?</b> Lasst die Box an und tut nichts. Mit „1 Minute nichts tun“ könnt ihr die Zeit vorspulen.</li>
+      <li><b>Findet heraus:</b> In welchen <b>Zuständen</b> kann die Box sein? Welche <b>Eingaben</b> und welche <b>Ausgaben</b> gibt es? Gebt jedem Zustand einen Namen.</li>
+      <li><b>Zeichnet</b> ein Übergangsdiagramm für die Musikbox in euer Heft.</li>
+    </ol>
+    <div class="words">
+      <div class="word"><b>Eingabe:</b> Was ich mit der Box mache.</div>
+      <div class="word"><b>Ausgabe:</b> Was die Box dann tut, zum Beispiel Licht oder Musik.</div>
+      <div class="word"><b>Zustand:</b> In welcher Lage die Box gerade ist.</div>
+    </div>
+  </section>
+
+  <section class="card full">
+    <div class="proto-head">
+      <h2>Protokoll</h2>
+      <button id="btnReset" type="button" class="ghost small">Alles zurücksetzen</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nr.</th><th>Uhrzeit</th><th>Eure Eingabe</th><th>Was hat die Box gemacht? (selbst eintragen)</th></tr></thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  // ===== Einstellungen (hier anpassen) =====
+  const TIMEOUT = 120;      // Sekunden ohne Bedienung im Zustand "warten", dann aus
+  const ON_BUTTON = "right"; // welches Dreieck einschaltet: "right" oder "left"
+  const VOL_MIN = 1, VOL_MAX = 5;
+
+  // Zustände: "aus", "warten", "spielen"
+  let state = "aus", figureOn = false, idle = 0, vol = 3;
+  let entries = [];
+  const KEY = "musikbox-protokoll";
+
+  const $ = id => document.getElementById(id);
+  const led = $("led"), duck = $("duck"), stage = $("stage"), log = $("log"), volEl = $("vol");
+
+  // ===== Musik: "Alle meine Entchen" (Volkslied) =====
+  let ctx = null, master = null, playing = false, timer = null, noteTimer = null;
+  const F = {C:523.25,D:587.33,E:659.25,F:698.46,G:783.99,A:880.00};
+  const song = [["C",1],["D",1],["E",1],["F",1],["G",2],["G",2],
+                ["A",1],["A",1],["A",1],["A",1],["G",4],
+                ["A",1],["A",1],["A",1],["A",1],["G",4],
+                ["F",1],["F",1],["F",1],["F",1],["E",2],["E",2],
+                ["D",1],["D",1],["D",1],["D",1],["C",4]];
+  const BEAT = 0.32;
+  const volGain = () => 0.04 + (vol - 1) * 0.07;
+
+  function tone(freq, t, dur){
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "triangle"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(1, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95);
+    o.connect(g).connect(master);
+    o.start(t); o.stop(t + dur);
+  }
+  function playSong(){
+    if(!ctx) return;
+    let t = ctx.currentTime + 0.05, total = 0;
+    song.forEach(([n,b]) => { tone(F[n], t, b*BEAT); t += b*BEAT; total += b*BEAT; });
+    timer = setTimeout(() => { if(playing) playSong(); }, (total + 0.6) * 1000);
+  }
+  function startMusic(){
+    if(playing) return;
+    playing = true;
+    try{
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value = volGain(); master.connect(ctx.destination);
+      if(ctx.state === "suspended") ctx.resume();
+      playSong();
+    }catch(e){}
+    noteTimer = setInterval(spawnNote, 450);
+  }
+  function stopMusic(){
+    playing = false;
+    clearTimeout(timer); clearInterval(noteTimer);
+    if(ctx){ try{ ctx.close(); }catch(e){} ctx = null; master = null; }
+  }
+  function spawnNote(){
+    const n = document.createElement("span");
+    n.className = "note";
+    n.textContent = Math.random() < .5 ? "♪" : "♫";
+    n.style.fontSize = (14 + vol * 6) + "px";
+    const w = stage.clientWidth;
+    n.style.left = (w * (0.55 + Math.random()*0.2)) + "px";
+    n.style.top = (w * 0.18) + "px";
+    n.style.setProperty("--dx", (Math.random()*60 - 30) + "px");
+    stage.appendChild(n);
+    setTimeout(() => n.remove(), 2300);
+  }
+  let volTimer = null;
+  function showVolume(){
+    volEl.textContent = "🔊 " + "▮".repeat(vol) + "▯".repeat(VOL_MAX - vol);
+    volEl.classList.add("show");
+    clearTimeout(volTimer);
+    volTimer = setTimeout(() => volEl.classList.remove("show"), 1400);
+  }
+
+  // ===== Anzeige =====
+  function setState(s){
+    state = s; idle = 0;
+    led.setAttribute("class", s === "aus" ? "led-off" : s === "warten" ? "led-on" : "led-play");
+    if(s === "spielen") startMusic(); else stopMusic();
+  }
+  function updateDuck(){
+    duck.setAttribute("class", (figureOn ? "onbox" : "beside") + " clickable");
+    $("btnDuck").textContent = figureOn ? "Ente herunternehmen" : "Ente auf die Box stellen";
+  }
+
+  // ===== Protokoll =====
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(entries)); }catch(e){} }
+  function render(){
+    log.innerHTML = "";
+    if(!entries.length){
+      log.innerHTML = '<tr><td colspan="4" class="empty">Noch keine Eingaben. Probiert die Box aus!</td></tr>';
+      return;
+    }
+    entries.forEach((e, i) => addRow(e, i));
+  }
+  function addRow(e, i){
+    if(i === 0) log.innerHTML = "";
+    const tr = document.createElement("tr");
+    if(e.auto) tr.className = "auto";
+    tr.innerHTML = `<td class="nr">${i+1}</td><td class="time">${e.time}</td><td class="input"></td>
+      <td><input type="text" id="note-${i}" placeholder="Beobachtung …" aria-label="Beobachtung zu Eingabe ${i+1}"></td>`;
+    tr.querySelector(".input").textContent = e.text;
+    const inp = tr.querySelector("input");
+    inp.value = e.note || "";
+    inp.addEventListener("input", () => { e.note = inp.value; save(); });
+    log.appendChild(tr);
+    return tr;
+  }
+  function addLog(text, auto){
+    const d = new Date();
+    const time = d.toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+    const e = {text, auto: !!auto, time, note: ""};
+    entries.push(e); save();
+    const tr = addRow(e, entries.length - 1);
+    tr.scrollIntoView({block:"nearest", behavior:"smooth"});
+  }
+
+  // ===== Eingaben =====
+  function pressTriangle(side){
+    addLog(side === "left" ? "Linkes Dreieck gedrückt" : "Rechtes Dreieck gedrückt");
+    if(state === "aus"){
+      if(side === ON_BUTTON) setState(figureOn ? "spielen" : "warten");
+      return; // anderes Dreieck: nichts passiert
+    }
+    // Box ist an: Dreiecke ändern die Lautstärke (rechts lauter, links leiser)
+    idle = 0;
+    vol = side === "right" ? Math.min(VOL_MAX, vol + 1) : Math.max(VOL_MIN, vol - 1);
+    if(master) master.gain.setTargetAtTime(volGain(), ctx.currentTime, 0.05);
+    showVolume();
+  }
+  function toggleDuck(){
+    figureOn = !figureOn;
+    updateDuck();
+    addLog(figureOn ? "Ente auf die Box gestellt" : "Ente heruntergenommen");
+    if(figureOn && state === "warten") setState("spielen");
+    else if(!figureOn && state === "spielen") setState("warten");
+    else idle = 0;
+  }
+  function checkTimeout(){
+    if(state === "warten" && idle >= TIMEOUT){
+      addLog("2 Minuten lang nichts gemacht", true);
+      setState("aus");
+    }
+  }
+  function waitMinute(){
+    addLog("1 Minute nichts getan");
+    if(state === "warten"){ idle += 60; checkTimeout(); }
+  }
+  setInterval(() => { if(state === "warten"){ idle++; checkTimeout(); } }, 1000);
+
+  // ===== Bedienung =====
+  const onKey = fn => e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); fn(); } };
+  [["triLeft","left"],["triRight","right"]].forEach(([id, side]) => {
+    $(id).addEventListener("click", () => pressTriangle(side));
+    $(id).addEventListener("keydown", onKey(() => pressTriangle(side)));
+  });
+  $("btnLeft").addEventListener("click", () => pressTriangle("left"));
+  $("btnRight").addEventListener("click", () => pressTriangle("right"));
+  duck.addEventListener("click", toggleDuck);
+  duck.addEventListener("keydown", onKey(toggleDuck));
+  $("btnDuck").addEventListener("click", toggleDuck);
+  $("btnWait").addEventListener("click", waitMinute);
+
+  let armed = false, armTimer = null;
+  const resetBtn = $("btnReset");
+  resetBtn.addEventListener("click", () => {
+    if(entries.length && !armed){
+      armed = true; resetBtn.textContent = "Wirklich alles löschen?"; resetBtn.classList.add("danger");
+      armTimer = setTimeout(() => { armed = false; resetBtn.textContent = "Alles zurücksetzen"; resetBtn.classList.remove("danger"); }, 3000);
+      return;
+    }
+    clearTimeout(armTimer); armed = false;
+    resetBtn.textContent = "Alles zurücksetzen"; resetBtn.classList.remove("danger");
+    figureOn = false; vol = 3; updateDuck(); setState("aus");
+    entries = []; save(); render();
+  });
+
+  try{ entries = JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ entries = []; }
+  render();
+})();
+</script>
+</body>
+</html>
