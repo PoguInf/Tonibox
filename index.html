@@ -7,32 +7,53 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap">
 <style>
-  /* Layout: Box links, Arbeitsauftrag rechts, Protokoll über volle Breite darunter */
+  /* Layout: Box links, Arbeitsauftrag rechts, Protokoll als Kette von Blöcken darunter */
   :root{
     --bg:#eef4f7; --card:#ffffff; --ink:#1f2d3a; --muted:#5a6b7a; --line:#d6e2e9;
-    --accent:#1f6f8b; --accent-ink:#ffffff; --accent-soft:#e1eff5;
-    --auto:#9a5b00; --table:#e6d6bb; --table-edge:#cdb995;
-    --box:#d0534a; --box-side:#a8403a; --box-top:#e3726a; --btn:#cfd3d6; --btn-edge:#8f969c;
+    --accent:#1f6f8b; --accent-soft:#e1eff5;
+    --table:#e6d6bb; --table-edge:#cdb995;
+    --box:#d0534a; --box-side:#a8403a; --box-top:#e3726a;
+    --ear:#d4d8db; --ear-side:#9aa1a7;
     --led-off:#5a3a37; --led-on:#7fe08c;
+    /* Farben der Eingaben (Knöpfe und Protokoll) */
+    --c-left:#3b6fd4;  --c-left-soft:#e3ebfb;
+    --c-right:#c03a78; --c-right-soft:#f8e1ec;
+    --c-duck:#c99a00;  --c-duck-soft:#fbf1cc;
+    --c-fox:#d9622b;  --c-fox-soft:#fbe8de;
+    --c-wait:#6b7682;  --c-wait-soft:#e8ecef;
+    --c-auto:#8a4fb8;  --c-auto-soft:#efe4f7;
+    --on-color:#ffffff;
     --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
     --body:"Nunito","Segoe UI",system-ui,sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#121b22; --card:#1b2731; --ink:#e6eef3; --muted:#9db0bf; --line:#2c3b47;
-      --accent:#5fb8d6; --accent-ink:#0d1a21; --accent-soft:#1f3442;
-      --auto:#f0b45a; --table:#3a3226; --table-edge:#4d4231; color-scheme:dark;
+      --accent:#5fb8d6; --accent-soft:#1f3442; --table:#3a3226; --table-edge:#4d4231;
+      --c-left:#6f98ec;  --c-left-soft:#1e2c47;
+      --c-right:#e879ad; --c-right-soft:#3f1f2e;
+      --c-duck:#e6bd2e;  --c-duck-soft:#3a3214;
+      --c-fox:#f08a55;  --c-fox-soft:#3d2619;
+      --c-wait:#a3adb7;  --c-wait-soft:#28323b;
+      --c-auto:#b98ae0;  --c-auto-soft:#2f2140;
+      --on-color:#10181e; color-scheme:dark;
     }
   }
   :root[data-theme="dark"]{
     --bg:#121b22; --card:#1b2731; --ink:#e6eef3; --muted:#9db0bf; --line:#2c3b47;
-    --accent:#5fb8d6; --accent-ink:#0d1a21; --accent-soft:#1f3442;
-    --auto:#f0b45a; --table:#3a3226; --table-edge:#4d4231; color-scheme:dark;
+    --accent:#5fb8d6; --accent-soft:#1f3442; --table:#3a3226; --table-edge:#4d4231;
+    --c-left:#6f98ec;  --c-left-soft:#1e2c47;
+    --c-right:#e879ad; --c-right-soft:#3f1f2e;
+    --c-duck:#e6bd2e;  --c-duck-soft:#3a3214;
+    --c-fox:#f08a55;  --c-fox-soft:#3d2619;
+    --c-wait:#a3adb7;  --c-wait-soft:#28323b;
+    --c-auto:#b98ae0;  --c-auto-soft:#2f2140;
+    --on-color:#10181e; color-scheme:dark;
   }
   *{box-sizing:border-box}
   body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
     padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
-  .wrap{max-width:1100px;margin:0 auto;padding-block:20px 32px;display:grid;gap:18px;grid-template-columns:1fr 1fr}
+  .wrap{max-width:1100px;margin:0 auto;padding-block:20px 32px;display:grid;gap:18px;grid-template-columns:1.1fr 1fr}
   header{grid-column:1 / -1;text-align:center}
   h1,h2{font-family:var(--display);font-weight:600;text-wrap:balance}
   h1{margin:0;font-size:2.2rem;color:var(--accent)}
@@ -40,18 +61,21 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}
   .card h2{margin:0 0 12px;font-size:1.35rem}
   .full{grid-column:1 / -1}
-  @media (max-width:820px){.wrap{grid-template-columns:1fr}}
+  @media (max-width:860px){.wrap{grid-template-columns:1fr}}
 
   /* Box */
-  .stage{position:relative;width:100%;max-width:460px;margin:0 auto}
+  .stage{position:relative;width:100%;max-width:500px;margin:0 auto}
   .stage svg{width:100%;height:auto;display:block}
   .clickable{cursor:pointer}
   .clickable:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-  #duck{transition:transform .7s cubic-bezier(.5,1.6,.5,1)}
-  #duck.beside{transform:translate(70px,292px)}
-  #duck.onbox{transform:translate(262px,131px)}
-  .tri{transition:transform .1s}
-  .tri:active{transform:translateY(2px)}
+  .fig{transition:transform .7s cubic-bezier(.5,1.6,.5,1)}
+  #duck{transform:translate(58px,300px)}
+  #fox{transform:translate(145px,300px)}
+  .fig.onbox{transform:translate(318px,147px) !important}
+  .ear{transition:transform .1s}
+  .ear:active,.ear.pressed{transform:translateY(3px)}
+  .hold{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+  button.pressed{filter:brightness(.85)}
   #led{transition:fill .4s}
   .led-off{fill:var(--led-off)}
   .led-on{fill:var(--led-on)}
@@ -59,19 +83,21 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
   .note{position:absolute;color:var(--accent);pointer-events:none;animation:float 2.2s ease-out forwards}
   @keyframes float{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(var(--dx),-110px) rotate(20deg)}}
-  .vol{position:absolute;right:4%;top:4%;background:var(--card);border:1px solid var(--line);border-radius:10px;
+  .vol{position:absolute;left:4%;top:4%;background:var(--card);border:1px solid var(--line);border-radius:10px;
     padding:4px 10px;font-weight:700;opacity:0;transition:opacity .3s;letter-spacing:.1em}
   .vol.show{opacity:1}
-  @media (prefers-reduced-motion: reduce){#duck,.tri{transition:none}.led-play{animation:none}.note{display:none}}
+  @media (prefers-reduced-motion: reduce){.fig,.ear{transition:none}.led-play{animation:none}.note{display:none}}
 
-  .controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
-  button{font:inherit;font-weight:700;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);
-    padding:9px 15px;border-radius:12px;cursor:pointer}
+  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+  button{font:inherit;font-weight:700;border:2px solid var(--c);background:var(--c);color:var(--on-color);
+    padding:9px 12px;border-radius:12px;cursor:pointer}
   button:hover{filter:brightness(1.08)}
   button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-  button.ghost{background:transparent;color:var(--accent)}
+  button.ghost{background:transparent;color:var(--c)}
   button.small{padding:5px 12px;font-size:.9rem}
-  button.danger{border-color:var(--auto);color:var(--auto)}
+  .k-left{--c:var(--c-left)} .k-right{--c:var(--c-right)} .k-duck{--c:var(--c-duck)}
+  .k-fox{--c:var(--c-fox)} .k-wait{--c:var(--c-wait)} .k-auto{--c:var(--c-auto)}
+  .k-reset{--c:var(--muted)}
   .hint{font-size:.9rem;color:var(--muted);text-align:center;margin:10px 0 0}
 
   /* Arbeitsauftrag */
@@ -82,18 +108,21 @@
   .word b{color:var(--accent)}
 
   /* Protokoll */
-  .proto-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+  .proto-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
   .proto-head h2{margin:0}
-  .table-wrap{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;min-width:560px}
-  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-  th{font-size:.85rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-  td.nr,td.time{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-  td.nr{width:44px} td.time{width:90px}
-  td.input{font-weight:700;white-space:nowrap}
-  tr.auto td.input{color:var(--auto)}
-  td input{width:100%;font:inherit;color:var(--ink);background:var(--bg);padding:6px 8px;border:1px solid var(--line);border-radius:8px}
-  .empty{color:var(--muted);text-align:center;padding:18px}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px}
+  .step{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;border-radius:12px;
+    background:var(--soft);border:2px solid var(--c);min-width:0;animation:pop .35s ease-out}
+  .step .nr{font-size:.75rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+  .step .txt{font-weight:700}
+  .step.k-left{--soft:var(--c-left-soft)} .step.k-right{--soft:var(--c-right-soft)}
+  .step.k-duck{--soft:var(--c-duck-soft)} .step.k-fox{--soft:var(--c-fox-soft)}
+  .step.k-wait{--soft:var(--c-wait-soft)} .step.k-auto{--soft:var(--c-auto-soft);border-style:dashed}
+  .arrow{color:var(--muted);font-size:1.4rem;font-weight:700;line-height:1}
+  .start{padding:6px 12px;border-radius:999px;background:var(--ink);color:var(--card);font-weight:700;font-size:.9rem}
+  .empty{color:var(--muted)}
+  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  @media (prefers-reduced-motion: reduce){.step{animation:none}}
 </style>
 </head>
 <body>
@@ -101,35 +130,37 @@
 <div class="wrap">
   <header>
     <h1>Die Musikbox</h1>
-    <p>Ein Automat aus dem Alltag: Probiert aus und findet heraus, wie er funktioniert!</p>
+    <p>Ein Automat aus dem Alltag: Probiere aus und finde heraus, wie er funktioniert!</p>
   </header>
 
   <section class="card">
-    <h2>Musikbox mit Figur</h2>
+    <h2>Musikbox mit Figuren</h2>
     <div class="stage" id="stage">
-      <svg viewBox="0 0 400 320" role="img" aria-label="Musikbox mit zwei Dreiecken oben und einer Entenfigur">
-        <rect x="0" y="292" width="400" height="28" fill="var(--table)"/>
-        <rect x="0" y="292" width="400" height="4" fill="var(--table-edge)"/>
-        <ellipse cx="262" cy="295" rx="105" ry="7" fill="rgba(0,0,0,.15)"/>
+      <svg viewBox="0 0 460 330" role="img" aria-label="Musikbox mit zwei Dreiecken oben, daneben eine Ente und ein Fuchs">
+        <rect x="0" y="300" width="460" height="30" fill="var(--table)"/>
+        <rect x="0" y="300" width="460" height="4" fill="var(--table-edge)"/>
+        <ellipse cx="332" cy="303" rx="105" ry="7" fill="rgba(0,0,0,.15)"/>
         <!-- Box -->
-        <polygon points="335,150 362,118 362,262 335,292" fill="var(--box-side)"/>
-        <rect x="165" y="150" width="170" height="142" rx="10" fill="var(--box)"/>
-        <polygon points="165,150 335,150 362,118 192,118" fill="var(--box-top)"/>
-        <rect id="led" class="led-off" x="175" y="156" width="150" height="7" rx="3.5"/>
+        <polygon points="405,160 430,128 430,270 405,300" fill="var(--box-side)"/>
+        <rect x="235" y="160" width="170" height="140" rx="10" fill="var(--box)"/>
+        <polygon points="235,160 405,160 430,128 260,128" fill="var(--box-top)"/>
+        <rect id="led" class="led-off" x="245" y="167" width="150" height="7" rx="3.5"/>
         <g fill="var(--box-side)">
-          <circle cx="215" cy="230" r="4"/><circle cx="235" cy="230" r="4"/><circle cx="255" cy="230" r="4"/><circle cx="275" cy="230" r="4"/>
-          <circle cx="225" cy="248" r="4"/><circle cx="245" cy="248" r="4"/><circle cx="265" cy="248" r="4"/>
-          <circle cx="215" cy="266" r="4"/><circle cx="235" cy="266" r="4"/><circle cx="255" cy="266" r="4"/><circle cx="275" cy="266" r="4"/>
+          <circle cx="285" cy="236" r="4"/><circle cx="305" cy="236" r="4"/><circle cx="325" cy="236" r="4"/><circle cx="345" cy="236" r="4"/><circle cx="365" cy="236" r="4"/>
+          <circle cx="295" cy="254" r="4"/><circle cx="315" cy="254" r="4"/><circle cx="335" cy="254" r="4"/><circle cx="355" cy="254" r="4"/>
+          <circle cx="285" cy="272" r="4"/><circle cx="305" cy="272" r="4"/><circle cx="325" cy="272" r="4"/><circle cx="345" cy="272" r="4"/><circle cx="365" cy="272" r="4"/>
         </g>
-        <!-- zwei Dreiecke oben -->
-        <g id="triLeft" class="clickable tri" role="button" tabindex="0" aria-label="Linkes Dreieck drücken">
-          <polygon points="183,145 225,145 214,123" fill="var(--btn)" stroke="var(--btn-edge)" stroke-width="3" stroke-linejoin="round"/>
+        <!-- zwei aufrecht stehende Dreiecke -->
+        <g id="earLeft" class="clickable ear" role="button" tabindex="0" aria-label="Linkes Dreieck drücken">
+          <polygon points="252,150 286,150 274,98" fill="var(--ear-side)"/>
+          <polygon points="246,152 280,152 268,100" fill="var(--ear)" stroke="var(--ear-side)" stroke-width="2" stroke-linejoin="round"/>
         </g>
-        <g id="triRight" class="clickable tri" role="button" tabindex="0" aria-label="Rechtes Dreieck drücken">
-          <polygon points="300,145 342,145 331,123" fill="var(--btn)" stroke="var(--btn-edge)" stroke-width="3" stroke-linejoin="round"/>
+        <g id="earRight" class="clickable ear hold" role="button" tabindex="0" aria-label="Rechtes Dreieck drücken">
+          <polygon points="370,150 416,150 398,76" fill="var(--ear-side)"/>
+          <polygon points="362,152 408,152 390,78" fill="var(--ear)" stroke="var(--ear-side)" stroke-width="2" stroke-linejoin="round"/>
         </g>
-        <!-- Ente -->
-        <g id="duck" class="beside clickable" role="button" tabindex="0" aria-label="Ente aufstellen oder herunternehmen">
+        <!-- Figur 1: Ente -->
+        <g id="duck" class="fig clickable" role="button" tabindex="0" aria-label="Ente aufstellen oder herunternehmen">
           <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
           <path d="M-12 -10 l-4 -8 M12 -10 l4 -8" stroke="#e8892b" stroke-width="5" stroke-linecap="round"/>
           <ellipse cx="0" cy="-36" rx="32" ry="22" fill="#ffd23f"/>
@@ -139,29 +170,45 @@
           <path d="M32 -66 l16 3 l-16 6z" fill="#e8892b"/>
           <circle cx="22" cy="-70" r="3" fill="#24303b"/>
         </g>
+        <!-- Figur 2: Fuchs -->
+        <g id="fox" class="fig clickable" role="button" tabindex="0" aria-label="Fuchs aufstellen oder herunternehmen">
+          <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
+          <path d="M14 -14 q30 -4 26 -30 q-4 -10 -12 -4 q4 18 -16 22z" fill="#e8742c"/>
+          <path d="M36 -40 q-4 -10 -12 -4 l4 6z" fill="#ffffff"/>
+          <ellipse cx="0" cy="-30" rx="22" ry="20" fill="#e8742c"/>
+          <ellipse cx="0" cy="-25" rx="11" ry="14" fill="#fbeee0"/>
+          <path d="M-22 -58 l-6 -26 l18 14z M22 -58 l6 -26 l-18 14z" fill="#e8742c"/>
+          <path d="M-20 -62 l-4 -15 l10 9z M20 -62 l4 -15 l-10 9z" fill="#3a2a22"/>
+          <path d="M-24 -60 q24 -16 48 0 q-6 18 -24 26 q-18 -8 -24 -26z" fill="#e8742c"/>
+          <path d="M-14 -50 q14 6 28 0 q-4 12 -14 16 q-10 -4 -14 -16z" fill="#fbeee0"/>
+          <circle cx="-9" cy="-55" r="3" fill="#24303b"/>
+          <circle cx="9" cy="-55" r="3" fill="#24303b"/>
+          <circle cx="0" cy="-37" r="3.5" fill="#24303b"/>
+        </g>
       </svg>
       <div class="vol" id="vol" aria-live="polite"></div>
     </div>
 
     <div class="controls">
-      <button id="btnLeft" type="button">Linkes Dreieck</button>
-      <button id="btnRight" type="button">Rechtes Dreieck</button>
-      <button id="btnDuck" type="button">Ente auf die Box stellen</button>
-      <button id="btnWait" type="button" class="ghost">1 Minute nichts tun</button>
+      <button id="btnLeft" type="button" class="k-left">◀ Linkes Dreieck</button>
+      <button id="btnRight" type="button" class="k-right hold">Rechtes Dreieck ▶</button>
+      <button id="btnDuck" type="button" class="k-duck">Ente aufstellen</button>
+      <button id="btnFox" type="button" class="k-fox">Fuchs aufstellen</button>
+      <button id="btnWait" type="button" class="k-wait ghost">1 Minute nichts tun</button>
     </div>
-    <p class="hint">Ihr könnt auch direkt auf die Dreiecke oder die Ente klicken. Ton einschalten!</p>
+    <p class="hint">Du kannst auch direkt auf die Dreiecke und die Figuren klicken. Ton einschalten!</p>
   </section>
 
   <section class="card">
-    <h2>Euer Arbeitsauftrag</h2>
-    <p class="intro">Tina hat eine neue Musikbox. Stellt man eine Figur wie die Ente auf die Box, kann man Lieder hören. Oben auf der Box sind zwei Dreiecke. Aber wie funktioniert die Box genau?</p>
+    <h2>Dein Arbeitsauftrag</h2>
+    <p class="intro">Tina hat eine neue Musikbox. Stellt man eine Figur auf die Box, kann man Lieder hören. Oben auf der Box stehen zwei Dreiecke. Aber wie funktioniert die Box genau?</p>
     <ol class="tasks">
-      <li><b>Probiert aus:</b> Drückt die beiden Dreiecke, stellt die Ente auf die Box und nehmt sie wieder herunter, in verschiedenen Reihenfolgen.</li>
-      <li><b>Beobachtet genau:</b> Was macht die Box nach jeder Eingabe? Leuchtet das Licht? Spielt Musik? Wird es lauter oder leiser? Tragt es unten ins Protokoll ein.</li>
-      <li><b>Welches Dreieck schaltet die Box ein?</b> Was machen die Dreiecke, wenn die Box schon an ist?</li>
-      <li><b>Was passiert, wenn niemand die Box bedient?</b> Lasst die Box an und tut nichts. Mit „1 Minute nichts tun“ könnt ihr die Zeit vorspulen.</li>
-      <li><b>Findet heraus:</b> In welchen <b>Zuständen</b> kann die Box sein? Welche <b>Eingaben</b> und welche <b>Ausgaben</b> gibt es? Gebt jedem Zustand einen Namen.</li>
-      <li><b>Zeichnet</b> ein Übergangsdiagramm für die Musikbox in euer Heft.</li>
+      <li><b>Probiere aus:</b> Drücke die beiden Dreiecke, stelle die Ente oder den Fuchs auf die Box und nimm sie wieder herunter, in verschiedenen Reihenfolgen.</li>
+      <li><b>Beobachte genau:</b> Was macht die Box nach jeder Eingabe? Leuchtet das Licht? Spielt Musik? Wird es lauter oder leiser? Unten im Protokoll siehst du, was du eingegeben hast.</li>
+      <li><b>Wie schaltet man die Box ein und wieder aus?</b> Was machen die Dreiecke, wenn die Box an ist und eine Figur daraufsteht?</li>
+      <li><b>Was passiert, wenn niemand die Box bedient?</b> Lass die Box an und tu nichts. Mit „1 Minute nichts tun“ kannst du die Zeit vorspulen.</li>
+      <li><b>Finde heraus:</b> In welchen <b>Zuständen</b> kann die Box sein? Welche <b>Eingaben</b> und welche <b>Ausgaben</b> gibt es? Gib jedem Zustand einen Namen.</li>
+      <li><b>Zeichne</b> ein Übergangsdiagramm für die Musikbox in dein Heft.</li>
     </ol>
     <div class="words">
       <div class="word"><b>Eingabe:</b> Was ich mit der Box mache.</div>
@@ -172,44 +219,48 @@
 
   <section class="card full">
     <div class="proto-head">
-      <h2>Protokoll</h2>
-      <button id="btnReset" type="button" class="ghost small">Alles zurücksetzen</button>
+      <h2>Protokoll deiner Eingaben</h2>
+      <button id="btnReset" type="button" class="k-reset ghost small">Alles zurücksetzen</button>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Nr.</th><th>Uhrzeit</th><th>Eure Eingabe</th><th>Was hat die Box gemacht? (selbst eintragen)</th></tr></thead>
-        <tbody id="log"></tbody>
-      </table>
-    </div>
+    <div class="flow" id="log" aria-live="polite"></div>
   </section>
 </div>
 
 <script>
 (() => {
   // ===== Einstellungen (hier anpassen) =====
-  const TIMEOUT = 120;      // Sekunden ohne Bedienung im Zustand "warten", dann aus
-  const ON_BUTTON = "right"; // welches Dreieck einschaltet: "right" oder "left"
-  const VOL_MIN = 1, VOL_MAX = 5;
+  const TIMEOUT = 120;          // Sekunden ohne Bedienung im Zustand "warten", dann aus
+  const HOLD = 2000;            // so lange (ms) muss das rechte Dreieck zum Ein-/Ausschalten gehalten werden
+  const VOLUMES = [0.015, 0.05, 0.14, 0.32, 0.6]; // Lautstärkestufen (deutliche Sprünge)
+  let vol = 2;                  // Startstufe (0 = leiseste)
 
   // Zustände: "aus", "warten", "spielen"
-  let state = "aus", figureOn = false, idle = 0, vol = 3;
+  let state = "aus", onBox = null, idle = 0;   // onBox: null, "duck" oder "fox"
   let entries = [];
-  const KEY = "musikbox-protokoll";
+  const KEY = "musikbox-protokoll-v2";
 
   const $ = id => document.getElementById(id);
-  const led = $("led"), duck = $("duck"), stage = $("stage"), log = $("log"), volEl = $("vol");
+  const led = $("led"), stage = $("stage"), log = $("log"), volEl = $("vol");
 
-  // ===== Musik: "Alle meine Entchen" (Volkslied) =====
-  let ctx = null, master = null, playing = false, timer = null, noteTimer = null;
-  const F = {C:523.25,D:587.33,E:659.25,F:698.46,G:783.99,A:880.00};
-  const song = [["C",1],["D",1],["E",1],["F",1],["G",2],["G",2],
-                ["A",1],["A",1],["A",1],["A",1],["G",4],
-                ["A",1],["A",1],["A",1],["A",1],["G",4],
-                ["F",1],["F",1],["F",1],["F",1],["E",2],["E",2],
-                ["D",1],["D",1],["D",1],["D",1],["C",4]];
+  // ===== Figuren und Lieder (Volkslieder) =====
+  const N = {C:523.25,D:587.33,E:659.25,F:698.46,G:783.99,A:880.00,C2:1046.5};
+  const FIGS = {
+    duck: { name:"Ente",   el:$("duck"), btn:$("btnDuck"),
+      // Alle meine Entchen
+      song:[["C",1],["D",1],["E",1],["F",1],["G",2],["G",2],["A",1],["A",1],["A",1],["A",1],["G",4],
+            ["A",1],["A",1],["A",1],["A",1],["G",4],["F",1],["F",1],["F",1],["F",1],["E",2],["E",2],
+            ["D",1],["D",1],["D",1],["D",1],["C",4]] },
+    fox: { name:"Fuchs", el:$("fox"), btn:$("btnFox"),
+      // Fuchs, du hast die Gans gestohlen
+      song:[["C",1],["D",1],["E",1],["F",1],["G",1],["G",1],["G",1],["G",1],
+            ["A",1],["F",1],["C2",1],["A",1],["G",2],["A",1],["F",1],["C2",1],["A",1],["G",2],
+            ["G",1],["F",1],["F",1],["F",1],["F",1],["E",1],["E",1],["E",1],
+            ["E",1],["D",1],["E",1],["D",1],["C",2]] }
+  };
   const BEAT = 0.32;
-  const volGain = () => 0.04 + (vol - 1) * 0.07;
 
+  // ===== Musik =====
+  let ctx = null, master = null, playing = false, timer = null, noteTimer = null;
   function tone(freq, t, dur){
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = "triangle"; o.frequency.value = freq;
@@ -219,20 +270,25 @@
     o.connect(g).connect(master);
     o.start(t); o.stop(t + dur);
   }
-  function playSong(){
-    if(!ctx) return;
-    let t = ctx.currentTime + 0.05, total = 0;
-    song.forEach(([n,b]) => { tone(F[n], t, b*BEAT); t += b*BEAT; total += b*BEAT; });
-    timer = setTimeout(() => { if(playing) playSong(); }, (total + 0.6) * 1000);
+  // Merkt sich, welche Figur zuletzt spielte und an welcher Stelle im Lied
+  let lastFig = null, pos = 0;
+  function playNext(){
+    if(!playing || !ctx) return;
+    const song = FIGS[lastFig].song;
+    const [n,b] = song[pos];
+    tone(N[n], ctx.currentTime + 0.02, b*BEAT);
+    pos = (pos + 1) % song.length;
+    timer = setTimeout(playNext, (b*BEAT + (pos === 0 ? 0.6 : 0)) * 1000);
   }
   function startMusic(){
-    if(playing) return;
+    stopMusic();
     playing = true;
+    if(onBox !== lastFig){ lastFig = onBox; pos = 0; } // andere Figur: Lied von vorn, gleiche Figur: weiter
     try{
       ctx = new (window.AudioContext || window.webkitAudioContext)();
-      master = ctx.createGain(); master.gain.value = volGain(); master.connect(ctx.destination);
+      master = ctx.createGain(); master.gain.value = VOLUMES[vol]; master.connect(ctx.destination);
       if(ctx.state === "suspended") ctx.resume();
-      playSong();
+      playNext();
     }catch(e){}
     noteTimer = setInterval(spawnNote, 450);
   }
@@ -245,17 +301,17 @@
     const n = document.createElement("span");
     n.className = "note";
     n.textContent = Math.random() < .5 ? "♪" : "♫";
-    n.style.fontSize = (14 + vol * 6) + "px";
+    n.style.fontSize = (12 + vol * 8) + "px";
     const w = stage.clientWidth;
-    n.style.left = (w * (0.55 + Math.random()*0.2)) + "px";
-    n.style.top = (w * 0.18) + "px";
+    n.style.left = (w * (0.62 + Math.random()*0.18)) + "px";
+    n.style.top = (w * 0.12) + "px";
     n.style.setProperty("--dx", (Math.random()*60 - 30) + "px");
     stage.appendChild(n);
     setTimeout(() => n.remove(), 2300);
   }
   let volTimer = null;
   function showVolume(){
-    volEl.textContent = "🔊 " + "▮".repeat(vol) + "▯".repeat(VOL_MAX - vol);
+    volEl.textContent = "🔊 " + "▮".repeat(vol + 1) + "▯".repeat(VOLUMES.length - vol - 1);
     volEl.classList.add("show");
     clearTimeout(volTimer);
     volTimer = setTimeout(() => volEl.classList.remove("show"), 1400);
@@ -267,104 +323,138 @@
     led.setAttribute("class", s === "aus" ? "led-off" : s === "warten" ? "led-on" : "led-play");
     if(s === "spielen") startMusic(); else stopMusic();
   }
-  function updateDuck(){
-    duck.setAttribute("class", (figureOn ? "onbox" : "beside") + " clickable");
-    $("btnDuck").textContent = figureOn ? "Ente herunternehmen" : "Ente auf die Box stellen";
+  function updateFigures(){
+    Object.entries(FIGS).forEach(([k, f]) => {
+      f.el.setAttribute("class", "fig clickable" + (onBox === k ? " onbox" : ""));
+      f.btn.textContent = onBox === k ? f.name + " herunternehmen" : f.name + " aufstellen";
+    });
   }
 
   // ===== Protokoll =====
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(entries)); }catch(e){} }
+  function stepEl(e, i){
+    const d = document.createElement("div");
+    d.className = "step k-" + e.kind;
+    const nr = document.createElement("span"); nr.className = "nr"; nr.textContent = "Nr. " + (i+1);
+    const tx = document.createElement("span"); tx.className = "txt"; tx.textContent = e.text;
+    d.append(nr, tx);
+    return d;
+  }
+  function arrow(){ const a = document.createElement("span"); a.className = "arrow"; a.textContent = "→"; a.setAttribute("aria-hidden","true"); return a; }
   function render(){
     log.innerHTML = "";
     if(!entries.length){
-      log.innerHTML = '<tr><td colspan="4" class="empty">Noch keine Eingaben. Probiert die Box aus!</td></tr>';
+      log.innerHTML = '<span class="empty">Noch keine Eingaben. Probiere die Box aus!</span>';
       return;
     }
-    entries.forEach((e, i) => addRow(e, i));
+    const s = document.createElement("span"); s.className = "start"; s.textContent = "Start";
+    log.appendChild(s);
+    entries.forEach((e, i) => { log.appendChild(arrow()); log.appendChild(stepEl(e, i)); });
   }
-  function addRow(e, i){
-    if(i === 0) log.innerHTML = "";
-    const tr = document.createElement("tr");
-    if(e.auto) tr.className = "auto";
-    tr.innerHTML = `<td class="nr">${i+1}</td><td class="time">${e.time}</td><td class="input"></td>
-      <td><input type="text" id="note-${i}" placeholder="Beobachtung …" aria-label="Beobachtung zu Eingabe ${i+1}"></td>`;
-    tr.querySelector(".input").textContent = e.text;
-    const inp = tr.querySelector("input");
-    inp.value = e.note || "";
-    inp.addEventListener("input", () => { e.note = inp.value; save(); });
-    log.appendChild(tr);
-    return tr;
-  }
-  function addLog(text, auto){
-    const d = new Date();
-    const time = d.toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
-    const e = {text, auto: !!auto, time, note: ""};
+  function addLog(text, kind){
+    const time = new Date().toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+    const e = {text, kind, time};
     entries.push(e); save();
-    const tr = addRow(e, entries.length - 1);
-    tr.scrollIntoView({block:"nearest", behavior:"smooth"});
+    if(entries.length === 1){ render(); }
+    else { log.appendChild(arrow()); log.appendChild(stepEl(e, entries.length - 1)); }
   }
 
   // ===== Eingaben =====
+  // Kurzer Druck auf ein Dreieck
   function pressTriangle(side){
-    addLog(side === "left" ? "Linkes Dreieck gedrückt" : "Rechtes Dreieck gedrückt");
-    if(state === "aus"){
-      if(side === ON_BUTTON) setState(figureOn ? "spielen" : "warten");
-      return; // anderes Dreieck: nichts passiert
-    }
-    // Box ist an: Dreiecke ändern die Lautstärke (rechts lauter, links leiser)
+    addLog(side === "left" ? "Linkes Dreieck" : "Rechtes Dreieck", side);
+    if(state === "aus") return;     // Box aus: kurzer Druck bewirkt nichts
     idle = 0;
-    vol = side === "right" ? Math.min(VOL_MAX, vol + 1) : Math.max(VOL_MIN, vol - 1);
-    if(master) master.gain.setTargetAtTime(volGain(), ctx.currentTime, 0.05);
-    showVolume();
+    if(state === "spielen"){        // nur mit Figur: lauter / leiser
+      vol = side === "right" ? Math.min(VOLUMES.length - 1, vol + 1) : Math.max(0, vol - 1);
+      if(master) master.gain.setTargetAtTime(VOLUMES[vol], ctx.currentTime, 0.05);
+      showVolume();
+    }
   }
-  function toggleDuck(){
-    figureOn = !figureOn;
-    updateDuck();
-    addLog(figureOn ? "Ente auf die Box gestellt" : "Ente heruntergenommen");
-    if(figureOn && state === "warten") setState("spielen");
-    else if(!figureOn && state === "spielen") setState("warten");
-    else idle = 0;
+  // Rechtes Dreieck gedrückt halten: nach HOLD ms ein- bzw. ausschalten
+  let holdTimer = null, holding = false, held = false;
+  const rightEls = () => [$("earRight"), $("btnRight")];
+  function rightDown(e){
+    if(e) e.preventDefault();
+    if(holding) return;
+    holding = true; held = false;
+    rightEls().forEach(el => el.classList.add("pressed"));
+    holdTimer = setTimeout(() => {
+      held = true;
+      addLog("Rechtes Dreieck lang gedrückt", "right");
+      if(state === "aus") setState(onBox ? "spielen" : "warten");
+      else setState("aus");
+    }, HOLD);
+  }
+  function rightUp(){
+    if(!holding) return;
+    holding = false;
+    clearTimeout(holdTimer);
+    rightEls().forEach(el => el.classList.remove("pressed"));
+    if(!held) pressTriangle("right");
+  }
+  function removeFigure(){
+    const k = onBox; onBox = null; updateFigures();
+    addLog(FIGS[k].name + " heruntergenommen", k);
+    if(state === "spielen") setState("warten"); else idle = 0;
+  }
+  function placeFigure(k){
+    onBox = k; updateFigures();
+    addLog(FIGS[k].name + " aufgestellt", k);
+    if(state === "warten") setState("spielen"); else idle = 0;
+  }
+  function toggleFigure(k){
+    if(onBox === k){ removeFigure(); return; }
+    if(onBox) removeFigure();       // auf der Box ist nur Platz für eine Figur
+    placeFigure(k);
   }
   function checkTimeout(){
     if(state === "warten" && idle >= TIMEOUT){
-      addLog("2 Minuten lang nichts gemacht", true);
+      addLog("2 Minuten nichts gemacht", "auto");
       setState("aus");
     }
   }
   function waitMinute(){
-    addLog("1 Minute nichts getan");
+    addLog("1 Minute nichts getan", "wait");
     if(state === "warten"){ idle += 60; checkTimeout(); }
   }
   setInterval(() => { if(state === "warten"){ idle++; checkTimeout(); } }, 1000);
 
   // ===== Bedienung =====
   const onKey = fn => e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); fn(); } };
-  [["triLeft","left"],["triRight","right"]].forEach(([id, side]) => {
-    $(id).addEventListener("click", () => pressTriangle(side));
-    $(id).addEventListener("keydown", onKey(() => pressTriangle(side)));
+  const bind = (el, fn) => { el.addEventListener("click", fn); el.addEventListener("keydown", onKey(fn)); };
+  bind($("earLeft"),  () => pressTriangle("left"));
+  rightEls().forEach(el => {
+    el.addEventListener("pointerdown", rightDown);
+    ["pointerup","pointerleave","pointercancel"].forEach(t => el.addEventListener(t, rightUp));
+    el.addEventListener("contextmenu", e => e.preventDefault());
+    el.addEventListener("keydown", e => { if((e.key === "Enter" || e.key === " ") && !e.repeat) rightDown(e); });
+    el.addEventListener("keyup", e => { if(e.key === "Enter" || e.key === " ") rightUp(); });
   });
+  bind($("duck"), () => toggleFigure("duck"));
+  bind($("fox"), () => toggleFigure("fox"));
   $("btnLeft").addEventListener("click", () => pressTriangle("left"));
-  $("btnRight").addEventListener("click", () => pressTriangle("right"));
-  duck.addEventListener("click", toggleDuck);
-  duck.addEventListener("keydown", onKey(toggleDuck));
-  $("btnDuck").addEventListener("click", toggleDuck);
+  $("btnDuck").addEventListener("click", () => toggleFigure("duck"));
+  $("btnFox").addEventListener("click", () => toggleFigure("fox"));
   $("btnWait").addEventListener("click", waitMinute);
 
   let armed = false, armTimer = null;
   const resetBtn = $("btnReset");
+  const disarm = () => { armed = false; resetBtn.textContent = "Alles zurücksetzen"; resetBtn.style.setProperty("--c", ""); };
   resetBtn.addEventListener("click", () => {
     if(entries.length && !armed){
-      armed = true; resetBtn.textContent = "Wirklich alles löschen?"; resetBtn.classList.add("danger");
-      armTimer = setTimeout(() => { armed = false; resetBtn.textContent = "Alles zurücksetzen"; resetBtn.classList.remove("danger"); }, 3000);
+      armed = true; resetBtn.textContent = "Wirklich alles löschen?"; resetBtn.style.setProperty("--c", "var(--c-right)");
+      armTimer = setTimeout(disarm, 3000);
       return;
     }
-    clearTimeout(armTimer); armed = false;
-    resetBtn.textContent = "Alles zurücksetzen"; resetBtn.classList.remove("danger");
-    figureOn = false; vol = 3; updateDuck(); setState("aus");
+    clearTimeout(armTimer); disarm();
+    onBox = null; vol = 2; updateFigures(); setState("aus");
+    lastFig = null; pos = 0;
     entries = []; save(); render();
   });
 
   try{ entries = JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ entries = []; }
+  updateFigures();
   render();
 })();
 </script>
