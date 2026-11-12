@@ -230,7 +230,7 @@
 (() => {
   // ===== Einstellungen (hier anpassen) =====
   const TIMEOUT = 120;          // Sekunden ohne Bedienung im Zustand "warten", dann aus
-  const HOLD = 2000;            // so lange (ms) muss das rechte Dreieck zum Ein-/Ausschalten gehalten werden
+  const HOLD = 2000;            // so lange (ms) muss das rechte Dreieck zum Einschalten gehalten werden
   const VOLUMES = [0.015, 0.05, 0.14, 0.32, 0.6]; // Lautstärkestufen (deutliche Sprünge)
   let vol = 2;                  // Startstufe (0 = leiseste)
 
@@ -371,7 +371,7 @@
       showVolume();
     }
   }
-  // Rechtes Dreieck gedrückt halten: nach HOLD ms ein- bzw. ausschalten
+  // Rechtes Dreieck gedrückt halten: nach HOLD ms einschalten (aus geht die Box nur nach 2 Minuten Warten)
   let holdTimer = null, holding = false, held = false;
   const rightEls = () => [$("earRight"), $("btnRight")];
   function rightDown(e){
@@ -382,8 +382,7 @@
     holdTimer = setTimeout(() => {
       held = true;
       addLog("Rechtes Dreieck lang gedrückt", "right");
-      if(state === "aus") setState(onBox ? "spielen" : "warten");
-      else setState("aus");
+      if(state === "aus") setState(onBox ? "spielen" : "warten"); // Box an: langes Drücken bewirkt nichts
     }, HOLD);
   }
   function rightUp(){
