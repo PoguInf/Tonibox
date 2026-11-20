@@ -3,458 +3,437 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Die Musikbox</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap">
+<title>Musikbox-Simulator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
-  /* Layout: Box links, Arbeitsauftrag rechts, Protokoll als Kette von Blöcken darunter */
-  :root{
-    --bg:#eef4f7; --card:#ffffff; --ink:#1f2d3a; --muted:#5a6b7a; --line:#d6e2e9;
-    --accent:#1f6f8b; --accent-soft:#e1eff5;
-    --table:#e6d6bb; --table-edge:#cdb995;
-    --box:#d0534a; --box-side:#a8403a; --box-top:#e3726a;
-    --ear:#d4d8db; --ear-side:#9aa1a7;
-    --led-off:#5a3a37; --led-on:#7fe08c;
-    /* Farben der Eingaben (Knöpfe und Protokoll) */
-    --c-left:#3b6fd4;  --c-left-soft:#e3ebfb;
-    --c-right:#c03a78; --c-right-soft:#f8e1ec;
-    --c-duck:#c99a00;  --c-duck-soft:#fbf1cc;
-    --c-fox:#d9622b;  --c-fox-soft:#fbe8de;
-    --c-wait:#6b7682;  --c-wait-soft:#e8ecef;
-    --c-auto:#8a4fb8;  --c-auto-soft:#efe4f7;
-    --on-color:#ffffff;
-    --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
-    --body:"Nunito","Segoe UI",system-ui,sans-serif;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#121b22; --card:#1b2731; --ink:#e6eef3; --muted:#9db0bf; --line:#2c3b47;
-      --accent:#5fb8d6; --accent-soft:#1f3442; --table:#3a3226; --table-edge:#4d4231;
-      --c-left:#6f98ec;  --c-left-soft:#1e2c47;
-      --c-right:#e879ad; --c-right-soft:#3f1f2e;
-      --c-duck:#e6bd2e;  --c-duck-soft:#3a3214;
-      --c-fox:#f08a55;  --c-fox-soft:#3d2619;
-      --c-wait:#a3adb7;  --c-wait-soft:#28323b;
-      --c-auto:#b98ae0;  --c-auto-soft:#2f2140;
-      --on-color:#10181e; color-scheme:dark;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#121b22; --card:#1b2731; --ink:#e6eef3; --muted:#9db0bf; --line:#2c3b47;
-    --accent:#5fb8d6; --accent-soft:#1f3442; --table:#3a3226; --table-edge:#4d4231;
-    --c-left:#6f98ec;  --c-left-soft:#1e2c47;
-    --c-right:#e879ad; --c-right-soft:#3f1f2e;
-    --c-duck:#e6bd2e;  --c-duck-soft:#3a3214;
-    --c-fox:#f08a55;  --c-fox-soft:#3d2619;
-    --c-wait:#a3adb7;  --c-wait-soft:#28323b;
-    --c-auto:#b98ae0;  --c-auto-soft:#2f2140;
-    --on-color:#10181e; color-scheme:dark;
-  }
-  *{box-sizing:border-box}
-  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
-    padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
-  .wrap{max-width:1100px;margin:0 auto;padding-block:20px 32px;display:grid;gap:18px;grid-template-columns:1.1fr 1fr}
-  header{grid-column:1 / -1;text-align:center}
-  h1,h2{font-family:var(--display);font-weight:600;text-wrap:balance}
-  h1{margin:0;font-size:2.2rem;color:var(--accent)}
-  header p{margin:2px 0 0;color:var(--muted)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}
-  .card h2{margin:0 0 12px;font-size:1.35rem}
-  .full{grid-column:1 / -1}
-  @media (max-width:860px){.wrap{grid-template-columns:1fr}}
+/* Layout: Kopf als Karte; links die Musikbox mit Bedienfeld, rechts Wort, Zustand, Codetabelle und Worttest (wie der Poststation-Simulator) */
+:root{
+  --bg:#eef2f6; --panel:#ffffff; --surface2:#f4f6f9; --fg:#1f2d3a; --muted:#4f5d6b; --line:#d5dbe1;
+  --shadow:0 1px 2px rgba(31,45,58,.06),0 8px 24px rgba(31,45,58,.08);
+  --accent:#d0534a; --accent-ink:#ffffff;
+  --in:#2557b8; --in-bg:#e6eefb;
+  --st:#6c3f9c; --st-bg:#efe7f8;
+  --ok:#237a40; --ok-bg:#e3f3e8;
+  --bad:#b8443b; --bad-bg:#fde3e1;
+  --table:#e6d6bb; --table-edge:#cdb995;
+  --box:#d0534a; --box-side:#a8403a; --box-top:#e3726a;
+  --ear:#d4d8db; --ear-side:#9aa1a7; --led-off:#5a3a37; --led-on:#7fe08c;
+  --display:"Fredoka","Nunito",system-ui,sans-serif;
+  --body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --panel:#1c232b; --surface2:#232c36; --fg:#e8edf2; --muted:#a9b5c1; --line:#36414d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --accent:#e4685f; --accent-ink:#1a0f0e;
+  --in:#8fb2f2; --in-bg:#22314d; --st:#c4a4ea; --st-bg:#33264a;
+  --ok:#7fd49a; --ok-bg:#1d3a27; --bad:#f19b93; --bad-bg:#4a2422;
+  --table:#3a3226; --table-edge:#4d4231;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --panel:#1c232b; --surface2:#232c36; --fg:#e8edf2; --muted:#a9b5c1; --line:#36414d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --accent:#e4685f; --accent-ink:#1a0f0e;
+  --in:#8fb2f2; --in-bg:#22314d; --st:#c4a4ea; --st-bg:#33264a;
+  --ok:#7fd49a; --ok-bg:#1d3a27; --bad:#f19b93; --bad-bg:#4a2422;
+  --table:#3a3226; --table-edge:#4d4231;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;background:var(--panel);border-radius:20px;padding:18px 20px;box-shadow:var(--shadow)}
+.titleblock{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{flex:0 0 52px;width:52px;height:52px}
+h1{margin:0;font-family:var(--display);font-weight:600;font-size:clamp(26px,3.6vw,36px);line-height:1.1;text-wrap:balance}
+.lead{margin:2px 0 0;color:var(--muted);font-size:15px;max-width:60ch}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:20px}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;background:var(--surface2);border-radius:999px;padding:8px 14px}
+.hint{font-size:14px;color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:940px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border-radius:20px;padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;min-width:0}
+.label{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 
-  /* Box */
-  .stage{position:relative;width:100%;max-width:500px;margin:0 auto}
-  .stage svg{width:100%;height:auto;display:block}
-  .clickable{cursor:pointer}
-  .clickable:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-  .fig{transition:transform .7s cubic-bezier(.5,1.6,.5,1)}
-  #duck{transform:translate(58px,300px)}
-  #fox{transform:translate(145px,300px)}
-  .fig.onbox{transform:translate(318px,147px) !important}
-  .ear{transition:transform .1s}
-  .ear:active,.ear.pressed{transform:translateY(3px)}
-  .hold{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
-  button.pressed{filter:brightness(.85)}
-  #led{transition:fill .4s}
-  .led-off{fill:var(--led-off)}
-  .led-on{fill:var(--led-on)}
-  .led-play{fill:var(--led-on);animation:pulse 1s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-  .note{position:absolute;color:var(--accent);pointer-events:none;animation:float 2.2s ease-out forwards}
-  @keyframes float{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(var(--dx),-110px) rotate(20deg)}}
-  .vol{position:absolute;left:4%;top:4%;background:var(--card);border:1px solid var(--line);border-radius:10px;
-    padding:4px 10px;font-weight:700;opacity:0;transition:opacity .3s;letter-spacing:.1em}
-  .vol.show{opacity:1}
-  @media (prefers-reduced-motion: reduce){.fig,.ear{transition:none}.led-play{animation:none}.note{display:none}}
+/* ---------- Musikbox ---------- */
+.stage{position:relative;width:100%;max-width:520px;margin:0 auto}
+.stage svg{width:100%;height:auto;display:block}
+.clickable{cursor:pointer}
+.clickable:focus-visible{outline:3px solid var(--in);outline-offset:2px}
+.fig{transition:transform .7s cubic-bezier(.5,1.6,.5,1)}
+#duck{transform:translate(58px,300px)}
+#fox{transform:translate(145px,300px)}
+.fig.onbox{transform:translate(318px,147px) !important}
+.ear{transition:transform .1s}
+.ear.pressed{transform:translateY(3px)}
+#led{transition:fill .4s}
+.led-off{fill:var(--led-off)} .led-on{fill:var(--led-on)}
+.led-play{fill:var(--led-on);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.note{position:absolute;color:var(--in);pointer-events:none;animation:float 2.2s ease-out forwards}
+@keyframes float{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(var(--dx),-110px) rotate(20deg)}}
+.vol{position:absolute;left:4%;top:4%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-weight:800;opacity:0;transition:opacity .3s;letter-spacing:.1em}
+.vol.show{opacity:1}
+.msg{min-height:24px;font-size:14px;font-weight:700;color:var(--in)}
 
-  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
-  button{font:inherit;font-weight:700;border:2px solid var(--c);background:var(--c);color:var(--on-color);
-    padding:9px 12px;border-radius:12px;cursor:pointer}
-  button:hover{filter:brightness(1.08)}
-  button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-  button.ghost{background:transparent;color:var(--c)}
-  button.small{padding:5px 12px;font-size:.9rem}
-  .k-left{--c:var(--c-left)} .k-right{--c:var(--c-right)} .k-duck{--c:var(--c-duck)}
-  .k-fox{--c:var(--c-fox)} .k-wait{--c:var(--c-wait)} .k-auto{--c:var(--c-auto)}
-  .k-reset{--c:var(--muted)}
-  .hint{font-size:.9rem;color:var(--muted);text-align:center;margin:10px 0 0}
+/* Bedienfeld */
+.counter{display:flex;flex-direction:column;gap:10px;background:var(--surface2);border-radius:16px;padding:14px}
+.pad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:420px){.pad{grid-template-columns:minmax(0,1fr)}}
+.tbtn{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);font:800 14.5px var(--body);padding:9px 12px;cursor:pointer;text-align:left;min-height:48px;box-shadow:0 2px 0 var(--line);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.tbtn:hover{border-color:var(--in)}
+.tbtn:active,.tbtn.pressed{transform:translateY(2px);box-shadow:0 0 0 var(--line)}
+.tbtn:disabled{opacity:.5;cursor:not-allowed}
+.tbtn .fill{position:absolute;left:0;bottom:0;height:4px;width:0;background:var(--in)}
+.tbtn.holding .fill{width:100%;transition:width 2s linear}
+.keys{display:inline-flex;gap:4px;flex:0 0 auto}
+.tkey{flex:0 0 26px;width:26px;height:26px;border-radius:13px;background:var(--in);color:var(--panel);font:600 16px var(--display);display:inline-flex;align-items:center;justify-content:center}
+.tsub{display:block;font-weight:600;font-size:12.5px;color:var(--muted)}
 
-  /* Arbeitsauftrag */
-  .intro{margin:0 0 12px}
-  ol.tasks{padding-left:22px;margin:0;display:grid;gap:8px}
-  .words{display:grid;gap:8px;margin-top:16px}
-  .word{background:var(--accent-soft);border-radius:12px;padding:8px 12px}
-  .word b{color:var(--accent)}
-
-  /* Protokoll */
-  .proto-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-  .proto-head h2{margin:0}
-  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px}
-  .step{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;border-radius:12px;
-    background:var(--soft);border:2px solid var(--c);min-width:0;animation:pop .35s ease-out}
-  .step .nr{font-size:.75rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.06em;font-variant-numeric:tabular-nums}
-  .step .txt{font-weight:700}
-  .step.k-left{--soft:var(--c-left-soft)} .step.k-right{--soft:var(--c-right-soft)}
-  .step.k-duck{--soft:var(--c-duck-soft)} .step.k-fox{--soft:var(--c-fox-soft)}
-  .step.k-wait{--soft:var(--c-wait-soft)} .step.k-auto{--soft:var(--c-auto-soft);border-style:dashed}
-  .arrow{color:var(--muted);font-size:1.4rem;font-weight:700;line-height:1}
-  .start{padding:6px 12px;border-radius:999px;background:var(--ink);color:var(--card);font-weight:700;font-size:.9rem}
-  .empty{color:var(--muted)}
-  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-  @media (prefers-reduced-motion: reduce){.step{animation:none}}
+/* Protokoll */
+.word{display:flex;flex-wrap:wrap;gap:6px;min-height:48px;align-items:center;padding:8px;border:1.5px dashed var(--line);border-radius:12px}
+.word .ch{width:34px;height:34px;border-radius:8px;background:var(--in-bg);color:var(--in);font:600 20px var(--display);display:inline-flex;align-items:center;justify-content:center}
+.word .ch.new{animation:pop .3s ease-out}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.word .empty{color:var(--muted);font-size:14px}
+.state{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pill{border-radius:999px;padding:5px 14px;font-weight:800;font-size:15px}
+.pill.st{background:var(--st-bg);color:var(--st);border:1.5px solid var(--st)}
+.pill.end{background:var(--st-bg);color:var(--st);border:3px double var(--st)}
+.status{border-radius:12px;padding:12px 14px;font-weight:700;display:flex;gap:10px;align-items:flex-start}
+.status .icon{font:600 20px var(--display);line-height:1}
+.status.run{background:var(--in-bg);color:var(--fg)}
+.status.ok{background:var(--ok-bg);color:var(--ok)}
+.status.bad{background:var(--bad-bg);color:var(--bad)}
+.path{font-size:13.5px;color:var(--muted);overflow-wrap:anywhere;margin:0}
+.btn{border:0;border-radius:12px;padding:10px 16px;font:800 14px var(--body);cursor:pointer;min-height:44px;background:var(--accent);color:var(--accent-ink)}
+.btn.ghostbtn{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.codes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+@media (max-width:420px){.codes{grid-template-columns:minmax(0,1fr)}}
+.code{display:flex;align-items:center;gap:9px;font-size:13.5px;line-height:1.3;padding:3px 4px;border-radius:8px;transition:background .3s}
+.code.last{background:var(--in-bg)}
+.key{flex:0 0 28px;height:28px;border-radius:14px;background:var(--in);color:var(--panel);font:600 16px var(--display);display:inline-flex;align-items:center;justify-content:center}
+.test{display:flex;gap:8px;flex-wrap:wrap}
+.test input{flex:1 1 160px;min-width:0;border:1.5px solid var(--line);background:var(--panel);color:var(--fg);border-radius:12px;padding:10px 12px;font:600 18px var(--display);letter-spacing:.12em}
+hr{border:0;border-top:1.5px solid var(--line);margin:2px 0;width:100%}
+.tbtn:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--in);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <header>
-    <h1>Die Musikbox</h1>
-    <p>Ein Automat aus dem Alltag: Probiere aus und finde heraus, wie er funktioniert!</p>
+  <header class="top">
+    <div class="titleblock">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><polygon points="12,14 20,14 17,4" fill="#d4d8db" stroke="#9aa1a7" stroke-width="1.5"/><polygon points="29,14 40,14 35,1" fill="#d4d8db" stroke="#9aa1a7" stroke-width="1.5"/><rect x="5" y="13" width="38" height="32" rx="6" fill="#d0534a"/><rect x="10" y="18" width="28" height="3" rx="1.5" fill="#7fe08c"/><g fill="#a8403a"><circle cx="16" cy="30" r="2"/><circle cx="22" cy="30" r="2"/><circle cx="28" cy="30" r="2"/><circle cx="34" cy="30" r="2"/><circle cx="19" cy="37" r="2"/><circle cx="25" cy="37" r="2"/><circle cx="31" cy="37" r="2"/></g></svg>
+      <div>
+        <h1>Musikbox-Simulator</h1>
+        <p class="lead">Bediene die Musikbox wie in echt: Drücke die Dreiecke und stelle eine Figur auf die Box. Jede Eingabe wird ein Buchstabe in deinem Wort.</p>
+      </div>
+    </div>
+    <label class="toggle" for="showState"><input type="checkbox" id="showState"> Zustand anzeigen</label>
   </header>
 
-  <section class="card">
-    <h2>Musikbox mit Figuren</h2>
-    <div class="stage" id="stage">
-      <svg viewBox="0 0 460 330" role="img" aria-label="Musikbox mit zwei Dreiecken oben, daneben eine Ente und ein Fuchs">
-        <rect x="0" y="300" width="460" height="30" fill="var(--table)"/>
-        <rect x="0" y="300" width="460" height="4" fill="var(--table-edge)"/>
-        <ellipse cx="332" cy="303" rx="105" ry="7" fill="rgba(0,0,0,.15)"/>
-        <!-- Box -->
-        <polygon points="405,160 430,128 430,270 405,300" fill="var(--box-side)"/>
-        <rect x="235" y="160" width="170" height="140" rx="10" fill="var(--box)"/>
-        <polygon points="235,160 405,160 430,128 260,128" fill="var(--box-top)"/>
-        <rect id="led" class="led-off" x="245" y="167" width="150" height="7" rx="3.5"/>
-        <g fill="var(--box-side)">
-          <circle cx="285" cy="236" r="4"/><circle cx="305" cy="236" r="4"/><circle cx="325" cy="236" r="4"/><circle cx="345" cy="236" r="4"/><circle cx="365" cy="236" r="4"/>
-          <circle cx="295" cy="254" r="4"/><circle cx="315" cy="254" r="4"/><circle cx="335" cy="254" r="4"/><circle cx="355" cy="254" r="4"/>
-          <circle cx="285" cy="272" r="4"/><circle cx="305" cy="272" r="4"/><circle cx="325" cy="272" r="4"/><circle cx="345" cy="272" r="4"/><circle cx="365" cy="272" r="4"/>
-        </g>
-        <!-- zwei aufrecht stehende Dreiecke -->
-        <g id="earLeft" class="clickable ear" role="button" tabindex="0" aria-label="Linkes Dreieck drücken">
-          <polygon points="252,150 286,150 274,98" fill="var(--ear-side)"/>
-          <polygon points="246,152 280,152 268,100" fill="var(--ear)" stroke="var(--ear-side)" stroke-width="2" stroke-linejoin="round"/>
-        </g>
-        <g id="earRight" class="clickable ear hold" role="button" tabindex="0" aria-label="Rechtes Dreieck drücken">
-          <polygon points="370,150 416,150 398,76" fill="var(--ear-side)"/>
-          <polygon points="362,152 408,152 390,78" fill="var(--ear)" stroke="var(--ear-side)" stroke-width="2" stroke-linejoin="round"/>
-        </g>
-        <!-- Figur 1: Ente -->
-        <g id="duck" class="fig clickable" role="button" tabindex="0" aria-label="Ente aufstellen oder herunternehmen">
-          <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
-          <path d="M-12 -10 l-4 -8 M12 -10 l4 -8" stroke="#e8892b" stroke-width="5" stroke-linecap="round"/>
-          <ellipse cx="0" cy="-36" rx="32" ry="22" fill="#ffd23f"/>
-          <path d="M-30 -42 q-14 -10 -6 -22 q6 10 14 12z" fill="#ffd23f"/>
-          <ellipse cx="-4" cy="-36" rx="14" ry="9" fill="#f2bd1d"/>
-          <circle cx="17" cy="-66" r="17" fill="#ffd23f"/>
-          <path d="M32 -66 l16 3 l-16 6z" fill="#e8892b"/>
-          <circle cx="22" cy="-70" r="3" fill="#24303b"/>
-        </g>
-        <!-- Figur 2: Fuchs -->
-        <g id="fox" class="fig clickable" role="button" tabindex="0" aria-label="Fuchs aufstellen oder herunternehmen">
-          <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
-          <path d="M14 -14 q30 -4 26 -30 q-4 -10 -12 -4 q4 18 -16 22z" fill="#e8742c"/>
-          <path d="M36 -40 q-4 -10 -12 -4 l4 6z" fill="#ffffff"/>
-          <ellipse cx="0" cy="-30" rx="22" ry="20" fill="#e8742c"/>
-          <ellipse cx="0" cy="-25" rx="11" ry="14" fill="#fbeee0"/>
-          <path d="M-22 -58 l-6 -26 l18 14z M22 -58 l6 -26 l-18 14z" fill="#e8742c"/>
-          <path d="M-20 -62 l-4 -15 l10 9z M20 -62 l4 -15 l-10 9z" fill="#3a2a22"/>
-          <path d="M-24 -60 q24 -16 48 0 q-6 18 -24 26 q-18 -8 -24 -26z" fill="#e8742c"/>
-          <path d="M-14 -50 q14 6 28 0 q-4 12 -14 16 q-10 -4 -14 -16z" fill="#fbeee0"/>
-          <circle cx="-9" cy="-55" r="3" fill="#24303b"/>
-          <circle cx="9" cy="-55" r="3" fill="#24303b"/>
-          <circle cx="0" cy="-37" r="3.5" fill="#24303b"/>
-        </g>
-      </svg>
-      <div class="vol" id="vol" aria-live="polite"></div>
-    </div>
+  <div class="grid">
+    <section class="card" aria-labelledby="hBox" style="overflow:hidden">
+      <h2 id="hBox">Die Musikbox</h2>
+      <div class="stage" id="stage">
+        <svg viewBox="0 0 460 330" role="img" aria-label="Musikbox mit zwei Dreiecken oben, daneben eine Ente und ein Fuchs">
+          <rect x="0" y="300" width="460" height="30" fill="var(--table)"/>
+          <rect x="0" y="300" width="460" height="4" fill="var(--table-edge)"/>
+          <ellipse cx="332" cy="303" rx="105" ry="7" fill="rgba(0,0,0,.15)"/>
+          <polygon points="405,160 430,128 430,270 405,300" fill="var(--box-side)"/>
+          <rect x="235" y="160" width="170" height="140" rx="10" fill="var(--box)"/>
+          <polygon points="235,160 405,160 430,128 260,128" fill="var(--box-top)"/>
+          <rect id="led" class="led-off" x="245" y="167" width="150" height="7" rx="3.5"/>
+          <g fill="var(--box-side)">
+            <circle cx="285" cy="236" r="4"/><circle cx="305" cy="236" r="4"/><circle cx="325" cy="236" r="4"/><circle cx="345" cy="236" r="4"/><circle cx="365" cy="236" r="4"/>
+            <circle cx="295" cy="254" r="4"/><circle cx="315" cy="254" r="4"/><circle cx="335" cy="254" r="4"/><circle cx="355" cy="254" r="4"/>
+            <circle cx="285" cy="272" r="4"/><circle cx="305" cy="272" r="4"/><circle cx="325" cy="272" r="4"/><circle cx="345" cy="272" r="4"/><circle cx="365" cy="272" r="4"/>
+          </g>
+          <g id="earLeft" class="clickable ear" role="button" tabindex="0" aria-label="Linkes Dreieck drücken">
+            <polygon points="252,150 286,150 274,98" fill="var(--ear-side)"/>
+            <polygon points="246,152 280,152 268,100" fill="var(--ear)" stroke="var(--ear-side)" stroke-width="2" stroke-linejoin="round"/>
+          </g>
+          <g id="earRight" class="clickable ear" role="button" tabindex="0" aria-label="Rechtes Dreieck drücken oder halten">
+            <polygon points="370,150 416,150 398,76" fill="var(--ear-side)"/>
+            <polygon points="362,152 408,152 390,78" fill="var(--ear)" stroke="var(--ear-side)" stroke-width="2" stroke-linejoin="round"/>
+          </g>
+          <g id="duck" class="fig clickable" role="button" tabindex="0" aria-label="Ente aufstellen oder herunternehmen">
+            <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
+            <path d="M-12 -10 l-4 -8 M12 -10 l4 -8" stroke="#e8892b" stroke-width="5" stroke-linecap="round"/>
+            <ellipse cx="0" cy="-36" rx="32" ry="22" fill="#ffd23f"/>
+            <path d="M-30 -42 q-14 -10 -6 -22 q6 10 14 12z" fill="#ffd23f"/>
+            <ellipse cx="-4" cy="-36" rx="14" ry="9" fill="#f2bd1d"/>
+            <circle cx="17" cy="-66" r="17" fill="#ffd23f"/>
+            <path d="M32 -66 l16 3 l-16 6z" fill="#e8892b"/>
+            <circle cx="22" cy="-70" r="3" fill="#24303b"/>
+          </g>
+          <g id="fox" class="fig clickable" role="button" tabindex="0" aria-label="Fuchs aufstellen oder herunternehmen">
+            <rect x="-28" y="-10" width="56" height="10" rx="5" fill="#8d8d8d"/>
+            <path d="M14 -14 q30 -4 26 -30 q-4 -10 -12 -4 q4 18 -16 22z" fill="#e8742c"/>
+            <path d="M36 -40 q-4 -10 -12 -4 l4 6z" fill="#ffffff"/>
+            <ellipse cx="0" cy="-30" rx="22" ry="20" fill="#e8742c"/>
+            <ellipse cx="0" cy="-25" rx="11" ry="14" fill="#fbeee0"/>
+            <path d="M-22 -58 l-6 -26 l18 14z M22 -58 l6 -26 l-18 14z" fill="#e8742c"/>
+            <path d="M-20 -62 l-4 -15 l10 9z M20 -62 l4 -15 l-10 9z" fill="#3a2a22"/>
+            <path d="M-24 -60 q24 -16 48 0 q-6 18 -24 26 q-18 -8 -24 -26z" fill="#e8742c"/>
+            <path d="M-14 -50 q14 6 28 0 q-4 12 -14 16 q-10 -4 -14 -16z" fill="#fbeee0"/>
+            <circle cx="-9" cy="-55" r="3" fill="#24303b"/>
+            <circle cx="9" cy="-55" r="3" fill="#24303b"/>
+            <circle cx="0" cy="-37" r="3.5" fill="#24303b"/>
+          </g>
+        </svg>
+        <div class="vol" id="vol" aria-live="polite"></div>
+      </div>
+      <div class="msg" id="msg" aria-live="polite"></div>
 
-    <div class="controls">
-      <button id="btnLeft" type="button" class="k-left">◀ Linkes Dreieck</button>
-      <button id="btnRight" type="button" class="k-right hold">Rechtes Dreieck ▶</button>
-      <button id="btnDuck" type="button" class="k-duck">Ente aufstellen</button>
-      <button id="btnFox" type="button" class="k-fox">Fuchs aufstellen</button>
-      <button id="btnWait" type="button" class="k-wait ghost">1 Minute nichts tun</button>
-    </div>
-    <p class="hint">Du kannst auch direkt auf die Dreiecke und die Figuren klicken. Ton einschalten!</p>
-  </section>
+      <div class="counter">
+        <span class="label">Bedienen</span>
+        <p class="hint">Klicke auf die Dreiecke und die Figuren – oder benutze diese Knöpfe. Schalte den Ton ein.</p>
+        <div class="pad">
+          <button type="button" class="tbtn" id="btnRight"><span class="keys"><span class="tkey">r</span><span class="tkey">s</span></span><span>Rechtes Dreieck<span class="tsub">kurz drücken oder halten</span></span><span class="fill"></span></button>
+          <button type="button" class="tbtn" id="btnLeft"><span class="keys"><span class="tkey">l</span></span>Linkes Dreieck</button>
+          <button type="button" class="tbtn" id="btnDuck"><span class="keys"><span class="tkey">e</span></span>Ente aufstellen</button>
+          <button type="button" class="tbtn" id="btnFox"><span class="keys"><span class="tkey">f</span></span>Fuchs aufstellen</button>
+          <button type="button" class="tbtn" id="btnOff"><span class="keys"><span class="tkey">h</span></span>Figur herunternehmen</button>
+          <button type="button" class="tbtn" id="btnWait"><span class="keys"><span class="tkey">w</span></span>2 Minuten nichts tun</button>
+        </div>
+      </div>
+    </section>
 
-  <section class="card">
-    <h2>Dein Arbeitsauftrag</h2>
-    <p class="intro">Tina hat eine neue Musikbox. Stellt man eine Figur auf die Box, kann man Lieder hören. Oben auf der Box stehen zwei Dreiecke. Aber wie funktioniert die Box genau?</p>
-    <ol class="tasks">
-      <li><b>Probiere aus:</b> Drücke die beiden Dreiecke, stelle die Ente oder den Fuchs auf die Box und nimm sie wieder herunter, in verschiedenen Reihenfolgen.</li>
-      <li><b>Beobachte genau:</b> Was macht die Box nach jeder Eingabe? Leuchtet das Licht? Spielt Musik? Wird es lauter oder leiser? Unten im Protokoll siehst du, was du eingegeben hast.</li>
-      <li><b>Wie schaltet man die Box ein und wieder aus?</b> Was machen die Dreiecke, wenn die Box an ist und eine Figur daraufsteht?</li>
-      <li><b>Was passiert, wenn niemand die Box bedient?</b> Lass die Box an und tu nichts. Mit „1 Minute nichts tun“ kannst du die Zeit vorspulen.</li>
-      <li><b>Finde heraus:</b> In welchen <b>Zuständen</b> kann die Box sein? Welche <b>Eingaben</b> und welche <b>Ausgaben</b> gibt es? Gib jedem Zustand einen Namen.</li>
-      <li><b>Zeichne</b> ein Übergangsdiagramm für die Musikbox in dein Heft.</li>
-    </ol>
-    <div class="words">
-      <div class="word"><b>Eingabe:</b> Was ich mit der Box mache.</div>
-      <div class="word"><b>Ausgabe:</b> Was die Box dann tut, zum Beispiel Licht oder Musik.</div>
-      <div class="word"><b>Zustand:</b> In welcher Lage die Box gerade ist.</div>
-    </div>
-  </section>
+    <section class="card" aria-labelledby="hLog">
+      <h2 id="hLog">Was ist passiert?</h2>
+      <span class="label">Dein Wort</span>
+      <div class="word" id="word"></div>
+      <div class="state" id="stateBox" hidden><span class="label">Zustand:</span><span class="pill st" id="statePill"></span></div>
+      <div class="status run" id="status"><span class="icon">…</span><span id="statusText"></span></div>
+      <p class="path" id="path"></p>
+      <div><button type="button" class="btn" id="reset">Neu starten</button></div>
 
-  <section class="card full">
-    <div class="proto-head">
-      <h2>Protokoll deiner Eingaben</h2>
-      <button id="btnReset" type="button" class="k-reset ghost small">Alles zurücksetzen</button>
-    </div>
-    <div class="flow" id="log" aria-live="polite"></div>
-  </section>
+      <hr>
+      <span class="label">Codetabelle</span>
+      <div class="codes" id="codes"></div>
+
+      <hr>
+      <h2>Wort testen</h2>
+      <p class="hint">Tippe ein Wort aus der Codetabelle ein. Die Musikbox spielt es Schritt für Schritt ab.</p>
+      <form class="test" id="testForm">
+        <label for="testWord" class="label" style="flex-basis:100%">Wort</label>
+        <input id="testWord" autocomplete="off" spellcheck="false" maxlength="30" placeholder="z. B. sehw">
+        <button type="submit" class="btn ghostbtn" id="play">Abspielen</button>
+      </form>
+    </section>
+  </div>
 </div>
 
 <script>
 (() => {
-  // ===== Einstellungen (hier anpassen) =====
-  const TIMEOUT = 120;          // Sekunden ohne Bedienung im Zustand "warten", dann aus
-  const HOLD = 2000;            // so lange (ms) muss das rechte Dreieck zum Einschalten gehalten werden
-  const VOLUMES = [0.015, 0.05, 0.14, 0.32, 0.6]; // Lautstärkestufen (deutliche Sprünge)
-  let vol = 2;                  // Startstufe (0 = leiseste)
+  // ===== Einstellungen =====
+  const HOLD = 2000;          // so lange (ms) muss das rechte Dreieck zum Einschalten gehalten werden
+  const TIMEOUT = 120;        // Sekunden ohne Bedienung im Zustand "warten", dann geht die Box aus
+  const VOLUMES = [0.015, 0.05, 0.14, 0.32, 0.6];
 
-  // Zustände: "aus", "warten", "spielen"
-  let state = "aus", onBox = null, idle = 0;   // onBox: null, "duck" oder "fox"
-  let entries = [];
-  const KEY = "musikbox-protokoll-v2";
+  const CODES = [
+    ['s','Rechtes Dreieck 2 Sekunden halten'], ['r','Rechtes Dreieck kurz drücken'],
+    ['l','Linkes Dreieck kurz drücken'],       ['e','Ente aufstellen'],
+    ['f','Fuchs aufstellen'],                  ['h','Figur herunternehmen'],
+    ['w','2 Minuten nichts tun']
+  ];
+  // Zustände: A = aus, AF = aus mit Figur, W = warten, P = spielen. A ist Start- und Endzustand.
+  const NAMES = { A:'aus', AF:'aus mit Figur', W:'warten', P:'spielen' };
+  const END = 'A';
 
+  let on = false, fig = null, vol = 2, idle = 0;
+  let word = [], path = ['A'], last = null, playing = false;
   const $ = id => document.getElementById(id);
-  const led = $("led"), stage = $("stage"), log = $("log"), volEl = $("vol");
+  const el = (t, c, x) => { const e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; };
+  const stateOf = () => on ? (fig ? 'P' : 'W') : (fig ? 'AF' : 'A');
 
-  // ===== Figuren und Lieder (Volkslieder) =====
+  // ===== Musik (Volkslieder) =====
   const N = {C:523.25,D:587.33,E:659.25,F:698.46,G:783.99,A:880.00,C2:1046.5};
-  const FIGS = {
-    duck: { name:"Ente",   el:$("duck"), btn:$("btnDuck"),
-      // Alle meine Entchen
-      song:[["C",1],["D",1],["E",1],["F",1],["G",2],["G",2],["A",1],["A",1],["A",1],["A",1],["G",4],
-            ["A",1],["A",1],["A",1],["A",1],["G",4],["F",1],["F",1],["F",1],["F",1],["E",2],["E",2],
-            ["D",1],["D",1],["D",1],["D",1],["C",4]] },
-    fox: { name:"Fuchs", el:$("fox"), btn:$("btnFox"),
-      // Fuchs, du hast die Gans gestohlen
-      song:[["C",1],["D",1],["E",1],["F",1],["G",1],["G",1],["G",1],["G",1],
-            ["A",1],["F",1],["C2",1],["A",1],["G",2],["A",1],["F",1],["C2",1],["A",1],["G",2],
-            ["G",1],["F",1],["F",1],["F",1],["F",1],["E",1],["E",1],["E",1],
-            ["E",1],["D",1],["E",1],["D",1],["C",2]] }
+  const SONGS = {
+    duck: [["C",1],["D",1],["E",1],["F",1],["G",2],["G",2],["A",1],["A",1],["A",1],["A",1],["G",4],
+           ["A",1],["A",1],["A",1],["A",1],["G",4],["F",1],["F",1],["F",1],["F",1],["E",2],["E",2],
+           ["D",1],["D",1],["D",1],["D",1],["C",4]],          // Alle meine Entchen
+    fox:  [["C",1],["D",1],["E",1],["F",1],["G",1],["G",1],["G",1],["G",1],
+           ["A",1],["F",1],["C2",1],["A",1],["G",2],["A",1],["F",1],["C2",1],["A",1],["G",2],
+           ["G",1],["F",1],["F",1],["F",1],["F",1],["E",1],["E",1],["E",1],
+           ["E",1],["D",1],["E",1],["D",1],["C",2]]           // Fuchs, du hast die Gans gestohlen
   };
   const BEAT = 0.32;
-
-  // ===== Musik =====
-  let ctx = null, master = null, playing = false, timer = null, noteTimer = null;
+  let ctx = null, master = null, music = false, musicFig = null, timer = null, noteTimer = null;
+  let lastFig = null, pos = 0;   // gleiche Figur wieder drauf: Lied läuft weiter
   function tone(freq, t, dur){
     const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = "triangle"; o.frequency.value = freq;
+    o.type = 'triangle'; o.frequency.value = freq;
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(1, t + 0.02);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95);
-    o.connect(g).connect(master);
-    o.start(t); o.stop(t + dur);
+    o.connect(g).connect(master); o.start(t); o.stop(t + dur);
   }
-  // Merkt sich, welche Figur zuletzt spielte und an welcher Stelle im Lied
-  let lastFig = null, pos = 0;
   function playNext(){
-    if(!playing || !ctx) return;
-    const song = FIGS[lastFig].song;
-    const [n,b] = song[pos];
-    tone(N[n], ctx.currentTime + 0.02, b*BEAT);
+    if(!music || !ctx) return;
+    const song = SONGS[lastFig], [n, b] = song[pos];
+    tone(N[n], ctx.currentTime + 0.02, b * BEAT);
     pos = (pos + 1) % song.length;
-    timer = setTimeout(playNext, (b*BEAT + (pos === 0 ? 0.6 : 0)) * 1000);
+    timer = setTimeout(playNext, (b * BEAT + (pos === 0 ? 0.6 : 0)) * 1000);
   }
   function startMusic(){
     stopMusic();
-    playing = true;
-    if(onBox !== lastFig){ lastFig = onBox; pos = 0; } // andere Figur: Lied von vorn, gleiche Figur: weiter
+    music = true; musicFig = fig;
+    if(fig !== lastFig){ lastFig = fig; pos = 0; }
     try{
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       master = ctx.createGain(); master.gain.value = VOLUMES[vol]; master.connect(ctx.destination);
-      if(ctx.state === "suspended") ctx.resume();
+      if(ctx.state === 'suspended') ctx.resume();
       playNext();
     }catch(e){}
     noteTimer = setInterval(spawnNote, 450);
   }
   function stopMusic(){
-    playing = false;
+    music = false; musicFig = null;
     clearTimeout(timer); clearInterval(noteTimer);
     if(ctx){ try{ ctx.close(); }catch(e){} ctx = null; master = null; }
   }
   function spawnNote(){
-    const n = document.createElement("span");
-    n.className = "note";
-    n.textContent = Math.random() < .5 ? "♪" : "♫";
-    n.style.fontSize = (12 + vol * 8) + "px";
-    const w = stage.clientWidth;
-    n.style.left = (w * (0.62 + Math.random()*0.18)) + "px";
-    n.style.top = (w * 0.12) + "px";
-    n.style.setProperty("--dx", (Math.random()*60 - 30) + "px");
-    stage.appendChild(n);
+    const n = el('span', 'note', Math.random() < .5 ? '♪' : '♫');
+    n.style.fontSize = (12 + vol * 8) + 'px';
+    const w = $('stage').clientWidth;
+    n.style.left = (w * (0.62 + Math.random() * 0.18)) + 'px';
+    n.style.top = (w * 0.12) + 'px';
+    n.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
+    $('stage').appendChild(n);
     setTimeout(() => n.remove(), 2300);
   }
   let volTimer = null;
   function showVolume(){
-    volEl.textContent = "🔊 " + "▮".repeat(vol + 1) + "▯".repeat(VOLUMES.length - vol - 1);
-    volEl.classList.add("show");
+    $('vol').textContent = '🔊 ' + '▮'.repeat(vol + 1) + '▯'.repeat(VOLUMES.length - vol - 1);
+    $('vol').classList.add('show');
     clearTimeout(volTimer);
-    volTimer = setTimeout(() => volEl.classList.remove("show"), 1400);
+    volTimer = setTimeout(() => $('vol').classList.remove('show'), 1400);
   }
+  function say(t){ $('msg').textContent = t || ''; }
 
-  // ===== Anzeige =====
-  function setState(s){
-    state = s; idle = 0;
-    led.setAttribute("class", s === "aus" ? "led-off" : s === "warten" ? "led-on" : "led-play");
-    if(s === "spielen") startMusic(); else stopMusic();
-  }
-  function updateFigures(){
-    Object.entries(FIGS).forEach(([k, f]) => {
-      f.el.setAttribute("class", "fig clickable" + (onBox === k ? " onbox" : ""));
-      f.btn.textContent = onBox === k ? f.name + " herunternehmen" : f.name + " aufstellen";
-    });
-  }
-
-  // ===== Protokoll =====
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(entries)); }catch(e){} }
-  function stepEl(e, i){
-    const d = document.createElement("div");
-    d.className = "step k-" + e.kind;
-    const nr = document.createElement("span"); nr.className = "nr"; nr.textContent = "Nr. " + (i+1);
-    const tx = document.createElement("span"); tx.className = "txt"; tx.textContent = e.text;
-    d.append(nr, tx);
-    return d;
-  }
-  function arrow(){ const a = document.createElement("span"); a.className = "arrow"; a.textContent = "→"; a.setAttribute("aria-hidden","true"); return a; }
-  function render(){
-    log.innerHTML = "";
-    if(!entries.length){
-      log.innerHTML = '<span class="empty">Noch keine Eingaben. Probiere die Box aus!</span>';
-      return;
-    }
-    const s = document.createElement("span"); s.className = "start"; s.textContent = "Start";
-    log.appendChild(s);
-    entries.forEach((e, i) => { log.appendChild(arrow()); log.appendChild(stepEl(e, i)); });
-  }
-  function addLog(text, kind){
-    const time = new Date().toLocaleTimeString("de-DE", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
-    const e = {text, kind, time};
-    entries.push(e); save();
-    if(entries.length === 1){ render(); }
-    else { log.appendChild(arrow()); log.appendChild(stepEl(e, entries.length - 1)); }
-  }
-
-  // ===== Eingaben =====
-  // Kurzer Druck auf ein Dreieck
-  function pressTriangle(side){
-    addLog(side === "left" ? "Linkes Dreieck" : "Rechtes Dreieck", side);
-    if(state === "aus") return;     // Box aus: kurzer Druck bewirkt nichts
-    idle = 0;
-    if(state === "spielen"){        // nur mit Figur: lauter / leiser
-      vol = side === "right" ? Math.min(VOLUMES.length - 1, vol + 1) : Math.max(0, vol - 1);
+  // ===== Automat =====
+  function input(ch){
+    word.push(ch); last = ch; idle = 0; say('');
+    const st = stateOf();
+    if(ch === 's' && !on) on = true;
+    if((ch === 'r' || ch === 'l') && st === 'P'){
+      vol = ch === 'r' ? Math.min(VOLUMES.length - 1, vol + 1) : Math.max(0, vol - 1);
       if(master) master.gain.setTargetAtTime(VOLUMES[vol], ctx.currentTime, 0.05);
       showVolume();
     }
+    if(ch === 'e') fig = 'duck';
+    if(ch === 'f') fig = 'fox';
+    if(ch === 'h') fig = null;
+    if(ch === 'w' && st === 'W') on = false;
+    path.push(stateOf());
+    sync(); render(true);
   }
-  // Rechtes Dreieck gedrückt halten: nach HOLD ms einschalten (aus geht die Box nur nach 2 Minuten Warten)
+  function sync(){
+    const s = stateOf();
+    $('led').setAttribute('class', s === 'P' ? 'led-play' : on ? 'led-on' : 'led-off');
+    $('duck').setAttribute('class', 'fig clickable' + (fig === 'duck' ? ' onbox' : ''));
+    $('fox').setAttribute('class', 'fig clickable' + (fig === 'fox' ? ' onbox' : ''));
+    if(s === 'P'){ if(!music || musicFig !== fig) startMusic(); }
+    else stopMusic();
+  }
+  function reset(){
+    stopMusic(); on = false; fig = null; vol = 2; idle = 0; lastFig = null; pos = 0;
+    word = []; path = ['A']; last = null; say(''); sync(); render(false);
+  }
+
+  // ===== Anzeige =====
+  function render(added){
+    const w = $('word'); w.innerHTML = '';
+    if(!word.length) w.appendChild(el('span', 'empty', 'Noch keine Eingabe'));
+    word.forEach((c, i) => w.appendChild(el('span', 'ch' + (added && i === word.length - 1 ? ' new' : ''), c)));
+    const s = stateOf(), show = $('showState').checked, pill = $('statePill');
+    pill.textContent = NAMES[s]; pill.className = 'pill ' + (s === END ? 'end' : 'st');
+    $('stateBox').hidden = !show;
+    $('path').textContent = show ? 'Weg: ' + path.map(p => NAMES[p]).join(' → ') : '';
+    const box = $('status'), txt = $('statusText'), ic = box.querySelector('.icon'), ww = word.join('');
+    if(!word.length){ box.className = 'status run'; ic.textContent = '…'; txt.textContent = 'Die Musikbox wartet auf deine erste Eingabe.'; }
+    else if(s === END){ box.className = 'status ok'; ic.textContent = '✓'; txt.textContent = `Endzustand erreicht. Das Wort „${ww}“ wird akzeptiert.`; }
+    else { box.className = 'status run'; ic.textContent = '…'; txt.textContent = `Noch kein Endzustand. Würde das Wort hier enden, wird „${ww}“ nicht akzeptiert.`; }
+    document.querySelectorAll('.code').forEach(c => c.classList.toggle('last', c.id === 'code-' + last));
+    document.querySelectorAll('.tbtn').forEach(b => b.disabled = playing);
+  }
+  function buildCodes(){
+    const c = $('codes'); c.innerHTML = '';
+    CODES.forEach(([k, t]) => { const d = el('div', 'code'); d.id = 'code-' + k; d.append(el('span', 'key', k), el('span', null, t)); c.appendChild(d); });
+  }
+
+  // ===== Bedienung =====
+  const free = () => !playing;
+  const onKey = fn => e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fn(); } };
+  // linkes Dreieck
+  const left = () => { if(free()) input('l'); };
+  $('earLeft').addEventListener('click', left);
+  $('earLeft').addEventListener('keydown', onKey(left));
+  $('btnLeft').addEventListener('click', left);
+  // rechtes Dreieck: kurz = r, 2 Sekunden halten = s
   let holdTimer = null, holding = false, held = false;
-  const rightEls = () => [$("earRight"), $("btnRight")];
+  const rightEls = [$('earRight'), $('btnRight')];
   function rightDown(e){
     if(e) e.preventDefault();
-    if(holding) return;
+    if(!free() || holding) return;
     holding = true; held = false;
-    rightEls().forEach(el => el.classList.add("pressed"));
-    holdTimer = setTimeout(() => {
-      held = true;
-      addLog("Rechtes Dreieck lang gedrückt", "right");
-      if(state === "aus") setState(onBox ? "spielen" : "warten"); // Box an: langes Drücken bewirkt nichts
-    }, HOLD);
+    rightEls.forEach(x => x.classList.add('pressed'));
+    $('btnRight').classList.add('holding');
+    holdTimer = setTimeout(() => { held = true; input('s'); }, HOLD);
   }
   function rightUp(){
     if(!holding) return;
-    holding = false;
-    clearTimeout(holdTimer);
-    rightEls().forEach(el => el.classList.remove("pressed"));
-    if(!held) pressTriangle("right");
+    holding = false; clearTimeout(holdTimer);
+    rightEls.forEach(x => x.classList.remove('pressed'));
+    $('btnRight').classList.remove('holding');
+    if(!held) input('r');
   }
-  function removeFigure(){
-    const k = onBox; onBox = null; updateFigures();
-    addLog(FIGS[k].name + " heruntergenommen", k);
-    if(state === "spielen") setState("warten"); else idle = 0;
-  }
-  function placeFigure(k){
-    onBox = k; updateFigures();
-    addLog(FIGS[k].name + " aufgestellt", k);
-    if(state === "warten") setState("spielen"); else idle = 0;
-  }
-  function toggleFigure(k){
-    if(onBox === k){ removeFigure(); return; }
-    if(onBox) removeFigure();       // auf der Box ist nur Platz für eine Figur
-    placeFigure(k);
-  }
-  function checkTimeout(){
-    if(state === "warten" && idle >= TIMEOUT){
-      addLog("2 Minuten nichts gemacht", "auto");
-      setState("aus");
-    }
-  }
-  function waitMinute(){
-    addLog("1 Minute nichts getan", "wait");
-    if(state === "warten"){ idle += 60; checkTimeout(); }
-  }
-  setInterval(() => { if(state === "warten"){ idle++; checkTimeout(); } }, 1000);
-
-  // ===== Bedienung =====
-  const onKey = fn => e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); fn(); } };
-  const bind = (el, fn) => { el.addEventListener("click", fn); el.addEventListener("keydown", onKey(fn)); };
-  bind($("earLeft"),  () => pressTriangle("left"));
-  rightEls().forEach(el => {
-    el.addEventListener("pointerdown", rightDown);
-    ["pointerup","pointerleave","pointercancel"].forEach(t => el.addEventListener(t, rightUp));
-    el.addEventListener("contextmenu", e => e.preventDefault());
-    el.addEventListener("keydown", e => { if((e.key === "Enter" || e.key === " ") && !e.repeat) rightDown(e); });
-    el.addEventListener("keyup", e => { if(e.key === "Enter" || e.key === " ") rightUp(); });
+  rightEls.forEach(x => {
+    x.addEventListener('pointerdown', rightDown);
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => x.addEventListener(t, rightUp));
+    x.addEventListener('contextmenu', e => e.preventDefault());
+    x.addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && !e.repeat) rightDown(e); });
+    x.addEventListener('keyup', e => { if(e.key === 'Enter' || e.key === ' ') rightUp(); });
   });
-  bind($("duck"), () => toggleFigure("duck"));
-  bind($("fox"), () => toggleFigure("fox"));
-  $("btnLeft").addEventListener("click", () => pressTriangle("left"));
-  $("btnDuck").addEventListener("click", () => toggleFigure("duck"));
-  $("btnFox").addEventListener("click", () => toggleFigure("fox"));
-  $("btnWait").addEventListener("click", waitMinute);
+  // Figuren: neben der Box anklicken = aufstellen, auf der Box anklicken = herunternehmen
+  const figClick = k => () => { if(free()) input(fig === k ? 'h' : (k === 'duck' ? 'e' : 'f')); };
+  ['duck', 'fox'].forEach(k => { $(k).addEventListener('click', figClick(k)); $(k).addEventListener('keydown', onKey(figClick(k))); });
+  $('btnDuck').addEventListener('click', () => { if(free()) input('e'); });
+  $('btnFox').addEventListener('click', () => { if(free()) input('f'); });
+  $('btnOff').addEventListener('click', () => { if(free()) input('h'); });
+  $('btnWait').addEventListener('click', () => { if(free()) input('w'); });
+  // echte Wartezeit: 2 Minuten ohne Bedienung im Zustand "warten"
+  setInterval(() => {
+    if(playing || stateOf() !== 'W') return;
+    if(++idle >= TIMEOUT){ input('w'); say('2 Minuten lang ist nichts passiert.'); }
+  }, 1000);
 
-  let armed = false, armTimer = null;
-  const resetBtn = $("btnReset");
-  const disarm = () => { armed = false; resetBtn.textContent = "Alles zurücksetzen"; resetBtn.style.setProperty("--c", ""); };
-  resetBtn.addEventListener("click", () => {
-    if(entries.length && !armed){
-      armed = true; resetBtn.textContent = "Wirklich alles löschen?"; resetBtn.style.setProperty("--c", "var(--c-right)");
-      armTimer = setTimeout(disarm, 3000);
-      return;
-    }
-    clearTimeout(armTimer); disarm();
-    onBox = null; vol = 2; updateFigures(); setState("aus");
-    lastFig = null; pos = 0;
-    entries = []; save(); render();
+  $('showState').addEventListener('change', () => render(false));
+  $('reset').addEventListener('click', () => { if(free()) reset(); });
+  $('testForm').addEventListener('submit', e => {
+    e.preventDefault(); if(playing) return;
+    const raw = $('testWord').value.toLowerCase().replace(/[^a-z]/g, ''); $('testWord').value = raw; if(!raw) return;
+    reset();
+    const bad = [...raw].find(c => !CODES.some(x => x[0] === c));
+    if(bad){ const s = $('status'); s.className = 'status bad'; s.querySelector('.icon').textContent = '✗';
+      $('statusText').textContent = `„${bad}“ gehört nicht zum Alphabet. Erlaubt sind: ${CODES.map(x => x[0]).join(', ')}.`; return; }
+    playing = true; $('play').disabled = true; render(false);
+    const chars = [...raw]; let i = 0; const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const step = () => {
+      if(i >= chars.length){ playing = false; $('play').disabled = false; render(false); return; }
+      input(chars[i++]); setTimeout(step, reduce ? 150 : 900);
+    };
+    setTimeout(step, 300);
+  });
+  document.addEventListener('keydown', e => {
+    if(e.target.closest('input,textarea,button,[role="button"]') || e.metaKey || e.ctrlKey || e.altKey || playing) return;
+    const k = e.key.toLowerCase(); if(CODES.some(x => x[0] === k)) input(k);
   });
 
-  try{ entries = JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ entries = []; }
-  updateFigures();
-  render();
+  buildCodes(); reset();
 })();
 </script>
 </body>
